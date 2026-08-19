@@ -1,0 +1,1392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Endura Pinnacle Vending — Lead Pipeline</title>
+<meta name="description" content="Lead pipeline for Endura Pinnacle Vending.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Endura Leads">
+<meta name="theme-color" content="#12312a">
+<meta name="color-scheme" content="light">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --ink:#14211d;          /* primary text */
+  --ink-2:#4a5b55;        /* secondary text */
+  --ink-3:#6f817a;        /* tertiary text */
+  --bg:#f2f1ec;           /* app background (warm, low glare) */
+  --card:#ffffff;
+  --line:#d9d7cf;
+  --line-strong:#b9b6ac;
+  --brand:#12312a;        /* deep evergreen */
+  --brand-ink:#f4f7f5;
+
+  /* status colors carry meaning, nothing else is colored */
+  --new:#1552c8;      --new-bg:#e4edff;
+  --called:#a8560a;   --called-bg:#fdeedd;
+  --pitched:#6b2fbd;  --pitched-bg:#f0e8fd;
+  --placed:#127a3f;   --placed-bg:#dff5e6;
+  --dead:#5c6a65;     --dead-bg:#e8ebe9;
+
+  --over:#b3261e;     --over-bg:#fde8e6;   /* overdue */
+  --today:#8a5a00;    --today-bg:#fdf1d6;  /* due today */
+
+  --tap:48px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 17px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;line-height:1.2}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+.hide{display:none !important}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:30;background:var(--brand);color:var(--brand-ink);
+  padding-top:var(--safe-t);
+  box-shadow:0 1px 0 rgba(0,0,0,.15);
+}
+.hrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:10px 0 4px}
+.brand{font-size:19px;font-weight:700;letter-spacing:.2px}
+.brand small{display:block;font-size:12px;font-weight:500;opacity:.72;letter-spacing:.6px;text-transform:uppercase}
+.counts{display:flex;gap:8px;padding:0 0 10px;flex-wrap:wrap}
+.count{
+  display:flex;align-items:center;gap:6px;min-height:44px;background:rgba(255,255,255,.12);
+  border-radius:999px;padding:0 14px;font-size:14px;font-weight:600;
+}
+.count b{font-size:17px}
+.count.warn{background:#ffd8a8;color:#5a3400}
+
+/* ---------- banner ---------- */
+.banner{
+  background:#fff6e0;border:1px solid #e8c56b;border-left:6px solid #d99b00;
+  border-radius:12px;padding:12px 14px;margin:12px 0;font-size:15px;
+}
+.banner b{display:block;margin-bottom:2px}
+.banner .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* ---------- search ---------- */
+.searchbar{display:flex;gap:8px;margin:12px 0}
+.searchbar input{
+  flex:1;min-width:0;height:var(--tap);border:1px solid var(--line-strong);border-radius:12px;
+  padding:0 14px;background:var(--card);font-size:17px;
+}
+.searchbar button{
+  height:var(--tap);padding:0 16px;border-radius:12px;border:1px solid var(--line-strong);
+  background:var(--card);font-weight:600;
+}
+
+/* ---------- group / cards ---------- */
+.group{margin:18px 0 0}
+.ghead{
+  display:flex;align-items:center;gap:8px;margin:0 2px 8px;font-size:14px;
+  font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-2);
+}
+.ghead .dot{width:12px;height:12px;border-radius:4px;flex:none}
+.ghead .n{margin-left:auto;font-size:14px;color:var(--ink-3)}
+
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  margin-bottom:12px;overflow:hidden;
+}
+.card.s-new{border-left:6px solid var(--new)}
+.card.s-called{border-left:6px solid var(--called)}
+.card.s-pitched{border-left:6px solid var(--pitched)}
+.card.s-placed{border-left:6px solid var(--placed)}
+.card.s-dead{border-left:6px solid var(--dead);opacity:.82}
+
+.cmain{display:block;width:100%;text-align:left;padding:14px 14px 10px}
+.ctop{display:flex;gap:10px;align-items:flex-start}
+.cname{font-size:19px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.fit{
+  flex:none;min-width:52px;text-align:center;border-radius:10px;padding:4px 8px;
+  background:#eef0ee;border:1px solid var(--line);
+}
+.fit b{display:block;font-size:19px;font-weight:800;line-height:1.1}
+.fit span{display:block;font-size:10px;letter-spacing:.8px;color:var(--ink-3);text-transform:uppercase}
+.fit.f5{background:#dff5e6;border-color:#a9dcbb}
+.fit.f4{background:#eaf6ec;border-color:#c2e2cc}
+.cmeta{margin-top:6px;font-size:15px;color:var(--ink-2);overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{
+  font-size:13px;font-weight:600;border-radius:999px;padding:4px 10px;
+  background:#eef0ee;color:var(--ink-2);border:1px solid var(--line);
+}
+.chip.over{background:var(--over-bg);color:var(--over);border-color:#f2bdb8}
+.chip.due{background:var(--today-bg);color:var(--today);border-color:#e8cf94}
+.chip.dead{background:var(--dead-bg);color:var(--dead)}
+
+/* action row */
+.acts{display:flex;gap:6px;padding:0 10px 10px}
+.act{
+  flex:1;min-width:0;height:var(--tap);border-radius:12px;border:1px solid var(--line-strong);
+  background:#fbfbf9;display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:15px;font-weight:700;color:var(--ink);letter-spacing:.2px;
+}
+.act.off{opacity:.32;pointer-events:none}
+
+/* status switch */
+.sw{display:flex;gap:4px;padding:0 10px 12px}
+.sw button{
+  flex:1;min-width:0;height:44px;border-radius:10px;border:1px solid var(--line);
+  background:#f4f5f3;font-size:13px;font-weight:700;color:var(--ink-2);padding:0 2px;
+}
+.sw button.on.new{background:var(--new-bg);color:var(--new);border-color:var(--new)}
+.sw button.on.called{background:var(--called-bg);color:var(--called);border-color:var(--called)}
+.sw button.on.pitched{background:var(--pitched-bg);color:var(--pitched);border-color:var(--pitched)}
+.sw button.on.placed{background:var(--placed-bg);color:var(--placed);border-color:var(--placed)}
+.sw button.on.dead{background:var(--dead-bg);color:var(--dead);border-color:var(--dead)}
+
+/* ---------- generic buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:var(--tap);padding:0 18px;border-radius:12px;font-size:16px;font-weight:700;
+  background:var(--card);border:1px solid var(--line-strong);color:var(--ink);text-decoration:none;
+}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.btn.wide{width:100%}
+.btn.danger{color:var(--over);border-color:#e6b3ae;background:#fff6f5}
+.btn.sm{min-height:40px;padding:0 14px;font-size:15px}
+
+/* ---------- forms ---------- */
+.field{margin:14px 0}
+.field label{display:block;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;min-height:var(--tap);border:1px solid var(--line-strong);border-radius:12px;
+  padding:11px 12px;background:var(--card);font-size:17px;
+}
+.field textarea{min-height:110px;resize:vertical}
+.field input[type=file]{padding:12px;background:#fbfbf9;font-size:16px}
+.field .hint{font-size:13px;color:var(--ink-3);margin-top:5px}
+.two{display:flex;gap:10px}
+.two>*{flex:1;min-width:0}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{
+  flex:1;min-width:64px;min-height:var(--tap);border-radius:12px;border:1px solid var(--line-strong);
+  background:var(--card);font-weight:700;font-size:15px;
+}
+.seg button.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+
+/* ---------- sheet / modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(16,24,21,.55);z-index:60;display:flex;align-items:flex-end}
+.sheet{
+  background:var(--bg);width:100%;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  border-radius:20px 20px 0 0;padding-bottom:calc(24px + var(--safe-b));
+}
+.sheet.full{max-height:100vh;min-height:100vh;border-radius:0}
+.shead{
+  position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;padding:12px 14px;z-index:2;
+}
+.shead h2{font-size:19px;flex:1;overflow-wrap:anywhere}
+.shead .x{min-width:var(--tap);min-height:var(--tap);border-radius:12px;border:1px solid var(--line-strong);background:var(--card);font-size:17px;font-weight:700}
+.sbody{padding:6px 14px 20px}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line-strong);margin:8px auto 0}
+
+/* detail rows */
+.drow{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.drow .k{flex:none;width:104px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-3);padding-top:2px}
+.drow .v{flex:1;min-width:0;overflow-wrap:anywhere}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.note .d{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.empty{text-align:center;color:var(--ink-2);background:var(--card);border:1px dashed var(--line-strong);border-radius:16px;padding:26px 18px;margin:14px 0}
+.empty b{display:block;font-size:18px;margin-bottom:4px;color:var(--ink)}
+
+/* import mapping */
+.map{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.map .h{font-weight:700;overflow-wrap:anywhere}
+.map .s{font-size:13px;color:var(--ink-3);margin:3px 0 8px;overflow-wrap:anywhere}
+.map select{width:100%;min-height:44px;border:1px solid var(--line-strong);border-radius:10px;padding:8px 10px;background:#fbfbf9;font-size:16px}
+.sec{font-size:13px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-2);margin:22px 0 8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.panel p{margin:0 0 12px;font-size:15px;color:var(--ink-2)}
+.stack>*{margin-bottom:10px}
+.stack>*:last-child{margin-bottom:0}
+
+/* ---------- tabs ---------- */
+main{padding-bottom:calc(84px + var(--safe-b))}
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
+  border-top:1px solid var(--line-strong);display:flex;padding-bottom:var(--safe-b);
+  backdrop-filter:saturate(1.4) blur(8px);
+}
+nav button{
+  position:relative;flex:1;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--ink-3);text-transform:uppercase;
+}
+nav button .ic{font-size:21px;line-height:1}
+nav button.on{color:var(--brand)}
+nav button.on .ic{transform:translateY(-1px)}
+nav button .badge{
+  position:absolute;top:8px;left:50%;margin-left:4px;background:var(--over);color:#fff;
+  border-radius:999px;font-size:11px;font-weight:800;padding:1px 6px;line-height:1.4;
+}
+.toast{
+  position:fixed;left:50%;bottom:calc(96px + var(--safe-b));transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:15px;font-weight:600;
+  z-index:80;max-width:92vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+@media (min-width:640px){ .cname{font-size:20px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand">Endura Pinnacle<small>Vending &middot; Lead Pipeline</small></div>
+    </div>
+    <div class="counts" id="counts"></div>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<nav id="nav">
+  <button data-tab="pipeline"><span class="ic">▤</span>Pipeline</button>
+  <button data-tab="today"><span class="ic">◎</span>Today</button>
+  <button data-tab="add"><span class="ic">＋</span>Add Lead</button>
+  <button data-tab="data"><span class="ic">⇅</span>Data</button>
+</nav>
+
+<div id="layer"></div>
+<script>
+/* =========================================================================
+   Endura Pinnacle Vending — Lead Pipeline
+   Single file, no backend. Everything lives in localStorage.
+   ========================================================================= */
+"use strict";
+
+var KEY = "epv.pipeline.v1";
+var STATUSES = ["New","Called","Pitched","Placed","Dead"];
+var STATUS_CLASS = {New:"new",Called:"called",Pitched:"pitched",Placed:"placed",Dead:"dead"};
+var DEAD_REASONS = ["No answer","Not interested","Has a vendor","Too small","Wrong contact","Other"];
+var CATEGORIES = ["Manufacturing/Warehouse","Hospital/Medical","Car dealership","School","Office building",
+                  "Apartment complex","Gym","Hotel","Self-storage","Other"];
+var EXPORT_WARN_DAYS = 30;
+
+/* ---------- tiny helpers ---------- */
+function $(sel,root){ return (root||document).querySelector(sel); }
+function el(tag,attrs,kids){
+  var n = document.createElement(tag);
+  if(attrs) for(var k in attrs){
+    if(k === "class") n.className = attrs[k];
+    else if(k === "html") n.innerHTML = attrs[k];
+    else if(k === "text") n.textContent = attrs[k];
+    else if(k.slice(0,2) === "on") n.addEventListener(k.slice(2), attrs[k]);
+    else if(attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]);
+  }
+  (kids||[]).forEach(function(c){ if(c) n.appendChild(c); });
+  return n;
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function todayISO(){
+  var d = new Date(), m = d.getMonth()+1, day = d.getDate();
+  return d.getFullYear() + "-" + (m<10?"0":"") + m + "-" + (day<10?"0":"") + day;
+}
+function daysBetween(aISO,bISO){
+  var a = new Date(aISO+"T00:00:00"), b = new Date(bISO+"T00:00:00");
+  return Math.round((b-a)/86400000);
+}
+function prettyDate(iso){
+  if(!iso) return "";
+  var p = iso.split("-");
+  if(p.length !== 3) return iso;
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[parseInt(p[1],10)-1] + " " + parseInt(p[2],10);
+}
+function toast(msg){
+  var old = $(".toast"); if(old) old.remove();
+  var t = el("div",{class:"toast",text:msg});
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.remove(); }, 2600);
+}
+
+/* ---------- storage ---------- */
+var DB = { leads:[], lastExport:null, seeded:false, banner:null };
+
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var d = JSON.parse(raw);
+      DB.leads = Array.isArray(d.leads) ? d.leads.map(normalizeLead) : [];
+      DB.lastExport = d.lastExport || null;
+      DB.seeded = !!d.seeded;
+      DB.banner = d.banner || null;
+      return;
+    }
+  }catch(e){ /* corrupt storage: start clean rather than crash */ }
+  DB.leads = seedLeads();
+  DB.seeded = true;
+  save();
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
+  catch(e){ toast("Could not save — phone storage is full"); }
+}
+function normalizeLead(l){
+  l = l || {};
+  return {
+    id: l.id || uid(),
+    name: (l.name||"").trim(),
+    category: CATEGORIES.indexOf(l.category) > -1 ? l.category : (l.category ? "Other" : ""),
+    address: l.address || "",
+    phone: l.phone || "",
+    email: l.email || "",
+    contactName: l.contactName || "",
+    contactTitle: l.contactTitle || "",
+    website: l.website || "",
+    size: l.size || "",
+    sizeKind: l.sizeKind === "people" ? "people" : "units",
+    sizeBasis: l.sizeBasis === "Confirmed" ? "Confirmed" : "Estimated",
+    fit: Math.min(5, Math.max(1, parseInt(l.fit,10) || 3)),
+    sourceUrl: l.sourceUrl || "",
+    status: STATUSES.indexOf(l.status) > -1 ? l.status : "New",
+    followUp: l.followUp || "",
+    deadReason: l.deadReason || "",
+    notes: Array.isArray(l.notes) ? l.notes.filter(Boolean).map(function(n){
+      return typeof n === "string" ? {date:todayISO(), text:n} : {date:n.date||todayISO(), text:n.text||""};
+    }) : [],
+    seed: !!l.seed,
+    created: l.created || todayISO(),
+    updated: l.updated || todayISO()
+  };
+}
+function addNote(lead, text){
+  if(!text || !text.trim()) return;
+  lead.notes.push({ date: todayISO(), text: text.trim() });
+  lead.updated = todayISO();
+}
+function getLead(id){
+  for(var i=0;i<DB.leads.length;i++) if(DB.leads[i].id === id) return DB.leads[i];
+  return null;
+}
+
+/* ---------- seed data (5 realistic LA County leads) ---------- */
+function seedLeads(){
+  var t = new Date(), iso = function(off){
+    var d = new Date(t.getTime() + off*86400000), m = d.getMonth()+1, day = d.getDate();
+    return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(day<10?"0":"")+day;
+  };
+  var raw = [
+    { name:"Vernon Cold Storage & Logistics", category:"Manufacturing/Warehouse",
+      address:"4820 S Boyle Ave, Vernon, CA 90058", phone:"3235550142", email:"ops@vernoncoldstorage.com",
+      contactName:"Rosa Delgado", contactTitle:"Operations Manager", website:"https://vernoncoldstorage.com",
+      size:"180", sizeKind:"people", sizeBasis:"Confirmed", fit:5,
+      sourceUrl:"https://www.dnb.com/business-directory/vernon-ca", status:"New", followUp:"",
+      notes:[{date:iso(-2),text:"Pulled from morning warehouse run. Two shifts, break room on the north side, no machines visible on Street View."}] },
+    { name:"Glendale Adventist Medical Plaza", category:"Hospital/Medical",
+      address:"1509 Wilson Terrace, Glendale, CA 91206", phone:"8185550188", email:"facilities@gampalza.org",
+      contactName:"Marcus Yee", contactTitle:"Facilities Director", website:"https://glendalemedicalplaza.org",
+      size:"310", sizeKind:"people", sizeBasis:"Estimated", fit:5,
+      sourceUrl:"https://www.yelp.com/biz/glendale-medical-plaza", status:"Called", followUp:iso(0),
+      notes:[{date:iso(-5),text:"Front desk said Marcus handles vendors. Best window is before 10am."},
+             {date:iso(-1),text:"Left voicemail. Try again Thursday morning."}] },
+    { name:"Puente Hills Auto Group", category:"Car dealership",
+      address:"17300 Gale Ave, City of Industry, CA 91745", phone:"6265550119", email:"gm@puentehillsauto.com",
+      contactName:"Danny Ruiz", contactTitle:"General Manager", website:"https://puentehillsauto.com",
+      size:"95", sizeKind:"people", sizeBasis:"Estimated", fit:4,
+      sourceUrl:"https://maps.google.com/?q=Puente+Hills+Auto+Group", status:"Pitched", followUp:iso(-3),
+      notes:[{date:iso(-9),text:"Danny walked me through the service bay lounge. Wants snacks plus cold drinks for waiting customers."},
+             {date:iso(-6),text:"Pitched two machines, no cost to them. He is checking with the dealer principal."}] },
+    { name:"Torrance Self Storage Center", category:"Self-storage",
+      address:"2101 Del Amo Blvd, Torrance, CA 90501", phone:"3105550176", email:"manager@torrancestorage.net",
+      contactName:"Alicia Bram", contactTitle:"Property Manager", website:"https://torrancestorage.net",
+      size:"640", sizeKind:"units", sizeBasis:"Confirmed", fit:3,
+      sourceUrl:"https://www.sparefoot.com/torrance-ca", status:"Placed", followUp:iso(21),
+      notes:[{date:iso(-30),text:"Signed off on one combo machine in the office lobby."},
+             {date:iso(-14),text:"Machine installed. First restock in three weeks."}] },
+    { name:"Sylmar Business Park", category:"Office building",
+      address:"12501 Gladstone Ave, Sylmar, CA 91342", phone:"8185550133", email:"leasing@sylmarbizpark.com",
+      contactName:"Tom Herrera", contactTitle:"Building Engineer", website:"",
+      size:"22", sizeKind:"units", sizeBasis:"Estimated", fit:2,
+      sourceUrl:"https://www.loopnet.com/Listing/12501-Gladstone-Ave", status:"Dead", followUp:"",
+      deadReason:"Has a vendor",
+      notes:[{date:iso(-11),text:"Tom says a vendor has the whole park under contract through next spring. Recheck in March."}] }
+  ];
+  return raw.map(function(r){ r.seed = true; return normalizeLead(r); });
+}
+
+/* =========================================================================
+   Views
+   ========================================================================= */
+var view = { tab:"pipeline", q:"" };
+
+function prettyPhone(p){
+  var d = String(p||"").replace(/[^0-9]/g,"");
+  if(d.length === 11 && d[0] === "1") d = d.slice(1);
+  if(d.length === 10) return "(" + d.slice(0,3) + ") " + d.slice(3,6) + "-" + d.slice(6);
+  return String(p||"");
+}
+function telHref(p){ return "tel:" + String(p).replace(/[^0-9+]/g,""); }
+function smsHref(p){ return "sms:" + String(p).replace(/[^0-9+]/g,""); }
+function mapHref(a){ return "https://maps.apple.com/?q=" + encodeURIComponent(a); }
+function webHref(u){
+  u = String(u).trim();
+  if(!u) return "";
+  return /^https?:\/\//i.test(u) ? u : "https://" + u;
+}
+
+function dueState(lead){
+  if(!lead.followUp) return "";
+  var d = daysBetween(todayISO(), lead.followUp);
+  if(d < 0) return "over";
+  if(d === 0) return "due";
+  return "";
+}
+function isDueList(lead){
+  if(lead.status === "Dead") return false;
+  if(lead.followUp && daysBetween(todayISO(), lead.followUp) <= 0) return true;
+  return lead.status === "New" && lead.fit >= 4;
+}
+function counts(){
+  var c = { New:0, due:0 };
+  DB.leads.forEach(function(l){
+    if(l.status === "New") c.New++;
+    if(isDueList(l)) c.due++;
+  });
+  return c;
+}
+function sortLeads(list){
+  return list.slice().sort(function(a,b){
+    if(b.fit !== a.fit) return b.fit - a.fit;
+    var af = a.followUp || "9999-99-99", bf = b.followUp || "9999-99-99";
+    if(af !== bf) return af < bf ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+}
+function matchesQuery(l,q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  var hay = [l.name, l.address, l.contactName, l.contactTitle,
+             l.notes.map(function(n){ return n.text; }).join(" ")].join(" ").toLowerCase();
+  return hay.indexOf(q) > -1;
+}
+
+/* the five things this app exists for: call, text, email, drive there, look them up */
+function actionRow(lead){
+  function action(label, href, on){
+    return el("a",{class:"act" + (on ? "" : " off"), href: on ? href : "#",
+      target:(href||"").slice(0,5) === "https" ? "_blank" : null, rel:"noopener",
+      "aria-disabled": on ? null : "true", text:label});
+  }
+  return el("div",{class:"acts"},[
+    action("Call",  telHref(lead.phone), !!lead.phone),
+    action("Text",  smsHref(lead.phone), !!lead.phone),
+    action("Email", "mailto:" + lead.email, !!lead.email),
+    action("Map",   mapHref(lead.address), !!lead.address),
+    action("Web",   webHref(lead.website), !!lead.website)
+  ]);
+}
+
+/* ---------- lead card ---------- */
+function cardEl(lead){
+  var card = el("div",{class:"card s-" + STATUS_CLASS[lead.status]});
+
+  /* tap the body to open the full lead */
+  var meta = [];
+  if(lead.category) meta.push(lead.category);
+  if(lead.size) meta.push(lead.size + " " + (lead.sizeKind === "people" ? "people" : "units") +
+                          (lead.sizeBasis === "Confirmed" ? " (confirmed)" : " (est.)"));
+  var chips = el("div",{class:"chips"});
+  if(lead.followUp){
+    var st = dueState(lead);
+    chips.appendChild(el("span",{class:"chip " + st,
+      text:(st === "over" ? "Overdue " : st === "due" ? "Due today" : "Follow up " ) +
+           (st === "due" ? "" : prettyDate(lead.followUp))}));
+  }
+  if(lead.status === "Dead" && lead.deadReason)
+    chips.appendChild(el("span",{class:"chip dead",text:lead.deadReason}));
+  if(lead.contactName)
+    chips.appendChild(el("span",{class:"chip",text:lead.contactName + (lead.contactTitle ? " · " + lead.contactTitle : "")}));
+  if(lead.notes.length)
+    chips.appendChild(el("span",{class:"chip",text:lead.notes.length + " note" + (lead.notes.length>1?"s":"")}));
+
+  var body = el("button",{class:"cmain", onclick:function(){ openLead(lead.id); }},[
+    el("div",{class:"ctop"},[
+      el("div",{class:"cname",text:lead.name || "(no name)"}),
+      el("div",{class:"fit f" + lead.fit},[
+        el("b",{text:String(lead.fit)}), el("span",{text:"fit"})
+      ])
+    ]),
+    meta.length ? el("div",{class:"cmeta",text:meta.join(" · ")}) : null,
+    lead.address ? el("div",{class:"cmeta",text:lead.address}) : null,
+    chips.childNodes.length ? chips : null
+  ]);
+  card.appendChild(body);
+
+  /* one-tap phone actions */
+  card.appendChild(actionRow(lead));
+
+  /* one-tap status change, straight from the list */
+  var sw = el("div",{class:"sw"});
+  STATUSES.forEach(function(s){
+    var on = lead.status === s;
+    sw.appendChild(el("button",{
+      class:(on ? "on " : "") + STATUS_CLASS[s],
+      text:s,
+      onclick:function(){ setStatus(lead.id, s); }
+    }));
+  });
+  card.appendChild(sw);
+  return card;
+}
+
+function setStatus(id, status){
+  var lead = getLead(id);
+  if(!lead || lead.status === status) return;
+  if(status === "Dead"){ askDeadReason(lead); return; }
+  var from = lead.status;
+  lead.status = status;
+  lead.deadReason = "";
+  lead.updated = todayISO();
+  addNote(lead, "Status: " + from + " → " + status);
+  save(); render();
+  toast(lead.name + " → " + status);
+}
+
+function askDeadReason(lead){
+  var sheet = openSheet("Why is this dead?");
+  var body = $(".sbody", sheet);
+  body.appendChild(el("p",{class:"panel",text:lead.name}));
+  var stack = el("div",{class:"stack",style:"margin-top:14px"});
+  DEAD_REASONS.forEach(function(r){
+    stack.appendChild(el("button",{class:"btn wide",text:r,onclick:function(){
+      var from = lead.status;
+      lead.status = "Dead"; lead.deadReason = r; lead.followUp = ""; lead.updated = todayISO();
+      addNote(lead, "Status: " + from + " → Dead (" + r + ")");
+      save(); closeSheet(); render(); toast("Marked dead · " + r);
+    }}));
+  });
+  body.appendChild(stack);
+}
+
+/* =========================================================================
+   Sheets
+   ========================================================================= */
+function openSheet(title, opts){
+  opts = opts || {};
+  closeSheet();
+  var sheet = el("div",{class:"sheet" + (opts.full ? " full" : "")},[
+    opts.full ? null : el("div",{class:"grab"}),
+    el("div",{class:"shead"},[
+      el("h2",{text:title}),
+      el("button",{class:"x",text:"✕",onclick:closeSheet,"aria-label":"Close"})
+    ]),
+    el("div",{class:"sbody"})
+  ]);
+  var scrim = el("div",{class:"scrim",onclick:function(e){ if(e.target === scrim) closeSheet(); }},[sheet]);
+  $("#layer").appendChild(scrim);
+  document.body.style.overflow = "hidden";
+  return sheet;
+}
+function closeSheet(){
+  $("#layer").innerHTML = "";
+  document.body.style.overflow = "";
+}
+
+/* ---------- lead detail ---------- */
+function openLead(id){
+  var lead = getLead(id);
+  if(!lead) return;
+  var sheet = openSheet(lead.name || "Lead", {full:true});
+  var body = $(".sbody", sheet);
+
+  /* actions first — this is what gets used in the field */
+  var acts = actionRow(lead);
+  acts.setAttribute("style","padding:12px 0 4px");
+  body.appendChild(acts);
+
+  /* status */
+  body.appendChild(el("div",{class:"sec",text:"Status"}));
+  var sw = el("div",{class:"sw",style:"padding:0"});
+  STATUSES.forEach(function(s){
+    sw.appendChild(el("button",{class:(lead.status === s ? "on " : "") + STATUS_CLASS[s], text:s,
+      onclick:function(){
+        if(s === "Dead"){ askDeadReason(lead); return; }
+        setStatus(lead.id, s); openLead(lead.id);
+      }}));
+  });
+  body.appendChild(sw);
+
+  /* follow-up date, editable right here */
+  var fu = el("input",{type:"date",value:lead.followUp||"",onchange:function(){
+    lead.followUp = fu.value; lead.updated = todayISO(); save(); render();
+  }});
+  body.appendChild(el("div",{class:"field"},[el("label",{text:"Follow-up date"}), fu]));
+
+  /* facts */
+  body.appendChild(el("div",{class:"sec",text:"Details"}));
+  var facts = el("div",{class:"panel"});
+  function row(k,v,link){
+    if(!v) return;
+    facts.appendChild(el("div",{class:"drow"},[
+      el("div",{class:"k",text:k}),
+      el("div",{class:"v"},[ link ? el("a",{href:link,target:"_blank",rel:"noopener",text:v}) : el("span",{text:v}) ])
+    ]));
+  }
+  row("Category", lead.category);
+  row("Address", lead.address, lead.address ? mapHref(lead.address) : null);
+  row("Phone", prettyPhone(lead.phone), lead.phone ? telHref(lead.phone) : null);
+  row("Email", lead.email, lead.email ? "mailto:" + lead.email : null);
+  row("Contact", [lead.contactName, lead.contactTitle].filter(Boolean).join(" · "));
+  row("Website", lead.website, lead.website ? webHref(lead.website) : null);
+  row("Size", lead.size ? (lead.size + " " + (lead.sizeKind === "people" ? "people" : "units") +
+      " · " + lead.sizeBasis) : "");
+  row("Fit score", lead.fit + " of 5");
+  row("Source", lead.sourceUrl, lead.sourceUrl ? webHref(lead.sourceUrl) : null);
+  if(lead.status === "Dead") row("Dead reason", lead.deadReason);
+  row("Added", prettyDate(lead.created));
+  if(facts.childNodes.length) body.appendChild(facts);
+
+  /* notes: append-only log */
+  body.appendChild(el("div",{class:"sec",text:"Notes (" + lead.notes.length + ")"}));
+  var ta = el("textarea",{placeholder:"What happened on this one?",rows:"3"});
+  body.appendChild(el("div",{class:"field",style:"margin-top:0"},[
+    ta,
+    el("button",{class:"btn pri wide",style:"margin-top:10px",text:"Add note",onclick:function(){
+      if(!ta.value.trim()){ toast("Nothing to add"); return; }
+      addNote(lead, ta.value); save(); render(); openLead(lead.id); toast("Note added");
+    }})
+  ]));
+  var log = el("div",{});
+  lead.notes.slice().reverse().forEach(function(n){
+    log.appendChild(el("div",{class:"note"},[
+      el("div",{class:"d",text:prettyDate(n.date)}),
+      el("div",{text:n.text})
+    ]));
+  });
+  if(!lead.notes.length) log.appendChild(el("div",{class:"empty",text:"No notes yet."}));
+  body.appendChild(log);
+
+  /* edit / delete */
+  body.appendChild(el("div",{class:"sec",text:"Manage"}));
+  body.appendChild(el("div",{class:"stack"},[
+    el("button",{class:"btn wide",text:"Edit lead details",onclick:function(){ openForm(lead.id); }}),
+    el("button",{class:"btn wide danger",text:"Delete this lead",onclick:function(){
+      if(confirm("Delete " + lead.name + "? This cannot be undone.")){
+        DB.leads = DB.leads.filter(function(x){ return x.id !== lead.id; });
+        save(); closeSheet(); render(); toast("Lead deleted");
+      }
+    }})
+  ]));
+}
+
+/* ---------- add / edit form ---------- */
+function openForm(id){
+  var lead = id ? getLead(id) : null;
+  var isNew = !lead;
+  var draft = lead ? JSON.parse(JSON.stringify(lead)) : normalizeLead({});
+  var sheet = openSheet(isNew ? "New lead" : "Edit lead", {full:true});
+  var body = $(".sbody", sheet);
+  var inputs = {};
+
+  function text(key,label,type,hint,ph){
+    var i = el("input",{type:type||"text",value:draft[key]||"",placeholder:ph||"",
+      inputmode: type === "tel" ? "tel" : (type === "number" ? "numeric" : null),
+      autocapitalize: (type === "email" || type === "url") ? "none" : "words",
+      autocorrect:"off"});
+    inputs[key] = i;
+    body.appendChild(el("div",{class:"field"},[el("label",{text:label}), i,
+      hint ? el("div",{class:"hint",text:hint}) : null]));
+  }
+
+  text("name","Business name *","text","Required");
+  var cat = el("select",{});
+  cat.appendChild(el("option",{value:"",text:"— pick a category —"}));
+  CATEGORIES.forEach(function(c){
+    cat.appendChild(el("option",{value:c,text:c,selected:draft.category === c ? "selected" : null}));
+  });
+  inputs.category = cat;
+  body.appendChild(el("div",{class:"field"},[el("label",{text:"Category"}), cat]));
+
+  text("address","Full street address","text",null,"123 Main St, Los Angeles, CA 90012");
+  text("phone","Phone","tel");
+  text("email","Email","email");
+  text("contactName","Contact name","text");
+  text("contactTitle","Contact title","text");
+  text("website","Website","url",null,"example.com");
+
+  /* size + basis */
+  var sizeVal = el("input",{type:"number",inputmode:"numeric",value:draft.size||"",placeholder:"e.g. 120"});
+  var sizeKind = el("select",{});
+  [["units","Units"],["people","People"]].forEach(function(o){
+    sizeKind.appendChild(el("option",{value:o[0],text:o[1],selected:draft.sizeKind === o[0] ? "selected" : null}));
+  });
+  inputs.size = sizeVal; inputs.sizeKind = sizeKind;
+  body.appendChild(el("div",{class:"field"},[
+    el("label",{text:"Size (unit count or headcount)"}),
+    el("div",{class:"two"},[sizeVal, sizeKind])
+  ]));
+  var basis = draft.sizeBasis;
+  var basisSeg = el("div",{class:"seg"});
+  ["Confirmed","Estimated"].forEach(function(b){
+    var btn = el("button",{class:basis === b ? "on" : "",text:b,onclick:function(){
+      basis = b;
+      Array.prototype.forEach.call(basisSeg.children, function(c){ c.className = c.textContent === b ? "on" : ""; });
+    }});
+    basisSeg.appendChild(btn);
+  });
+  body.appendChild(el("div",{class:"field"},[el("label",{text:"Is that number confirmed?"}), basisSeg]));
+
+  /* fit */
+  var fit = draft.fit;
+  var fitSeg = el("div",{class:"seg"});
+  [1,2,3,4,5].forEach(function(n){
+    fitSeg.appendChild(el("button",{class:fit === n ? "on" : "",text:String(n),onclick:function(){
+      fit = n;
+      Array.prototype.forEach.call(fitSeg.children, function(c){ c.className = c.textContent === String(n) ? "on" : ""; });
+    }}));
+  });
+  body.appendChild(el("div",{class:"field"},[el("label",{text:"Fit score (5 = best)"}), fitSeg]));
+
+  text("sourceUrl","Source URL","url","Where this lead came from");
+
+  /* status + follow-up */
+  var stat = draft.status;
+  var statSeg = el("div",{class:"sw",style:"padding:0"});
+  STATUSES.forEach(function(s){
+    statSeg.appendChild(el("button",{class:(stat === s ? "on " : "") + STATUS_CLASS[s],text:s,onclick:function(){
+      stat = s;
+      Array.prototype.forEach.call(statSeg.children, function(c){
+        c.className = (c.textContent === s ? "on " : "") + STATUS_CLASS[c.textContent];
+      });
+    }}));
+  });
+  body.appendChild(el("div",{class:"field"},[el("label",{text:"Status"}), statSeg]));
+  var fu = el("input",{type:"date",value:draft.followUp||""});
+  body.appendChild(el("div",{class:"field"},[el("label",{text:"Follow-up date"}), fu]));
+
+  var firstNote = null;
+  if(isNew){
+    firstNote = el("textarea",{placeholder:"First note (optional)",rows:"3"});
+    body.appendChild(el("div",{class:"field"},[el("label",{text:"Notes"}), firstNote,
+      el("div",{class:"hint",text:"Notes are a log. Every note you add is stamped with the date and kept."})]));
+  }
+
+  body.appendChild(el("div",{class:"stack",style:"margin-top:20px"},[
+    el("button",{class:"btn pri wide",text:isNew ? "Save lead" : "Save changes",onclick:function(){
+      var name = inputs.name.value.trim();
+      if(!name){ toast("Business name is required"); inputs.name.focus(); return; }
+      var target = lead || normalizeLead({});
+      target.name = name;
+      target.category = cat.value;
+      ["address","phone","email","contactName","contactTitle","website","sourceUrl"].forEach(function(k){
+        target[k] = inputs[k].value.trim();
+      });
+      target.size = sizeVal.value.trim();
+      target.sizeKind = sizeKind.value;
+      target.sizeBasis = basis;
+      target.fit = fit;
+      target.followUp = fu.value;
+      target.updated = todayISO();
+      if(target.status !== stat){
+        if(stat === "Dead" && !target.deadReason) target.deadReason = "Other";
+        if(stat !== "Dead") target.deadReason = "";
+        addNote(target, "Status: " + target.status + " → " + stat);
+        target.status = stat;
+      }
+      if(isNew){
+        if(firstNote && firstNote.value.trim()) addNote(target, firstNote.value);
+        DB.leads.push(target);
+      }
+      save(); closeSheet(); render();
+      toast(isNew ? "Lead saved" : "Changes saved");
+      if(!isNew) openLead(target.id);
+    }}),
+    el("button",{class:"btn wide",text:"Cancel",onclick:function(){
+      closeSheet(); if(!isNew) openLead(lead.id);
+    }})
+  ]));
+}
+
+/* =========================================================================
+   CSV import
+   ========================================================================= */
+function parseCSV(text){
+  var rows = [], row = [], cell = "", inQ = false, i = 0;
+  text = String(text).replace(/^﻿/,"").replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  while(i < text.length){
+    var ch = text[i];
+    if(inQ){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ cell += '"'; i += 2; continue; }
+        inQ = false; i++; continue;
+      }
+      cell += ch; i++; continue;
+    }
+    if(ch === '"'){ inQ = true; i++; continue; }
+    if(ch === ","){ row.push(cell); cell = ""; i++; continue; }
+    if(ch === "\n"){ row.push(cell); rows.push(row); row = []; cell = ""; i++; continue; }
+    cell += ch; i++;
+  }
+  row.push(cell); rows.push(row);
+  return rows.filter(function(r){ return r.some(function(c){ return String(c).trim() !== ""; }); })
+             .map(function(r){ return r.map(function(c){ return String(c).trim(); }); });
+}
+
+var FIELDS = [
+  ["ignore","— skip this column —"],
+  ["name","Business name"],
+  ["category","Category"],
+  ["address","Street address"],
+  ["phone","Phone"],
+  ["email","Email"],
+  ["contactName","Contact name"],
+  ["contactTitle","Contact title"],
+  ["website","Website"],
+  ["size","Size (units / headcount)"],
+  ["sizeBasis","Size confirmed or estimated"],
+  ["fit","Fit score"],
+  ["sourceUrl","Source URL"],
+  ["status","Status"],
+  ["followUp","Follow-up date"],
+  ["notes","Notes"]
+];
+/* header aliases, checked in this order so "source url" never lands on Website */
+var ALIASES = [
+  ["sourceUrl",  ["source","sourceurl","source url","source link","leadsource","lead source","found at","foundat","citation","reference","link"]],
+  ["contactName",["contact","contactname","contact name","contact person","owner","manager","gm","poc","decision maker","decisionmaker"]],
+  ["contactTitle",["title","contacttitle","contact title","role","position","job title","jobtitle"]],
+  ["name",       ["business","businessname","business name","property","propertyname","property name","company","companyname","company name","name","account","dba","location name","organization","org"]],
+  ["phone",      ["phone","tel","telephone","phonenumber","phone number","contact phone","mobile","cell","main phone"]],
+  ["email",      ["email","e mail","emailaddress","email address","contact email","mail"]],
+  ["address",    ["address","street","streetaddress","street address","full address","fulladdress","addr","address1","address 1","location","site address","mailing address"]],
+  ["size",       ["units","unitcount","unit count","headcount","head count","employees","employee count","employeecount","size","staff","number of employees","doors","beds","rooms","students","occupancy"]],
+  ["sizeBasis",  ["sizebasis","size basis","confirmed","estimated","size confirmed","basis","size source","verified"]],
+  ["fit",        ["fit","fitscore","fit score","score","rating","priority","grade"]],
+  ["category",   ["category","type","industry","segment","vertical","business type","businesstype"]],
+  ["website",    ["website","web","url","site","web site","homepage","web address","domain"]],
+  ["status",     ["status","stage","pipeline","lead status"]],
+  ["followUp",   ["followup","follow up","follow up date","followupdate","next action","next contact","due","due date","duedate","callback","call back"]],
+  ["notes",      ["notes","note","comments","comment","description","details","remarks","summary"]]
+];
+function normHeader(h){ return String(h).toLowerCase().replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim(); }
+function guessField(header){
+  var h = normHeader(header), hc = h.replace(/ /g,"");
+  for(var i=0;i<ALIASES.length;i++){
+    var list = ALIASES[i][1];
+    for(var j=0;j<list.length;j++){
+      var a = list[j], ac = a.replace(/ /g,"");
+      if(h === a || hc === ac) return ALIASES[i][0];
+    }
+  }
+  for(i=0;i<ALIASES.length;i++){
+    var l2 = ALIASES[i][1];
+    for(var k=0;k<l2.length;k++){
+      var b = l2[k].replace(/ /g,"");
+      if(b.length >= 4 && (hc.indexOf(b) > -1 || b.indexOf(hc) > -1 && hc.length >= 4)) return ALIASES[i][0];
+    }
+  }
+  return "ignore";
+}
+
+/* ---------- duplicate detection ---------- */
+var STOPWORDS = ["inc","llc","lp","llp","corp","corporation","co","company","the","of","and","group","holdings","ltd"];
+function normName(s){
+  var w = String(s).toLowerCase().replace(/[^a-z0-9 ]+/g," ").split(/\s+/).filter(function(x){
+    return x && STOPWORDS.indexOf(x) === -1;
+  });
+  return w.join(" ");
+}
+var STREET = {st:"street",str:"street",ave:"avenue",av:"avenue",blvd:"boulevard",rd:"road",dr:"drive",
+  ln:"lane",ct:"court",pl:"place",pkwy:"parkway",hwy:"highway",ter:"terrace",cir:"circle",sq:"square",
+  n:"north",s:"south",e:"east",w:"west",ne:"northeast",nw:"northwest",se:"southeast",sw:"southwest"};
+function normAddr(s){
+  var first = String(s).split(",")[0];
+  var w = first.toLowerCase().replace(/[^a-z0-9 ]+/g," ").split(/\s+/).filter(Boolean)
+    .map(function(x){ return STREET[x] || x; })
+    .filter(function(x){ return ["suite","ste","unit","apt","bldg","building","fl","floor","#"].indexOf(x) === -1; });
+  return w.join(" ");
+}
+function bigrams(s){
+  var out = [];
+  for(var i=0;i<s.length-1;i++) out.push(s.slice(i,i+2));
+  return out;
+}
+function similarity(a,b){
+  if(!a || !b) return 0;
+  if(a === b) return 1;
+  var A = bigrams(a), B = bigrams(b);
+  if(!A.length || !B.length) return 0;
+  var pool = B.slice(), hits = 0;
+  A.forEach(function(g){
+    var idx = pool.indexOf(g);
+    if(idx > -1){ hits++; pool.splice(idx,1); }
+  });
+  return (2*hits)/(A.length + B.length);
+}
+function isDuplicate(candidate, existing){
+  var n1 = normName(candidate.name), n2 = normName(existing.name);
+  if(!n1 || !n2) return false;
+  var nameSim = similarity(n1,n2);
+  if(nameSim < 0.78) return false;
+  var a1 = normAddr(candidate.address), a2 = normAddr(existing.address);
+  if(!a1 || !a2) return nameSim >= 0.93;          /* no address to compare: need a near-exact name */
+  if(similarity(a1,a2) >= 0.80) return true;
+  var num1 = (a1.match(/^\d+/)||[""])[0], num2 = (a2.match(/^\d+/)||[""])[0];
+  return num1 && num1 === num2 && nameSim >= 0.88;
+}
+
+/* ---------- value coercion ---------- */
+function coerceCategory(v){
+  if(!v) return "";
+  var s = String(v).toLowerCase();
+  for(var i=0;i<CATEGORIES.length;i++){
+    if(CATEGORIES[i].toLowerCase() === s) return CATEGORIES[i];
+  }
+  var map = [["warehouse","Manufacturing/Warehouse"],["manufact","Manufacturing/Warehouse"],
+    ["distrib","Manufacturing/Warehouse"],["industrial","Manufacturing/Warehouse"],["logist","Manufacturing/Warehouse"],
+    ["hospital","Hospital/Medical"],["medical","Hospital/Medical"],["clinic","Hospital/Medical"],["health","Hospital/Medical"],
+    ["dealer","Car dealership"],["auto","Car dealership"],["school","School"],["college","School"],["academy","School"],
+    ["office","Office building"],["apartment","Apartment complex"],["residential","Apartment complex"],
+    ["gym","Gym"],["fitness","Gym"],["hotel","Hotel"],["motel","Hotel"],["storage","Self-storage"]];
+  for(i=0;i<map.length;i++) if(s.indexOf(map[i][0]) > -1) return map[i][1];
+  return "Other";
+}
+function coerceStatus(v){
+  var s = String(v||"").toLowerCase().trim();
+  for(var i=0;i<STATUSES.length;i++) if(STATUSES[i].toLowerCase() === s) return STATUSES[i];
+  if(s.indexOf("call") > -1) return "Called";
+  if(s.indexOf("pitch") > -1) return "Pitched";
+  if(s.indexOf("plac") > -1 || s.indexOf("won") > -1) return "Placed";
+  if(s.indexOf("dead") > -1 || s.indexOf("lost") > -1) return "Dead";
+  return "New";
+}
+function coerceDate(v){
+  var s = String(v||"").trim();
+  if(!s) return "";
+  var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return m[1] + "-" + ("0"+m[2]).slice(-2) + "-" + ("0"+m[3]).slice(-2);
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if(m){
+    var y = m[3].length === 2 ? "20" + m[3] : m[3];
+    return y + "-" + ("0"+m[1]).slice(-2) + "-" + ("0"+m[2]).slice(-2);
+  }
+  var d = new Date(s);
+  if(!isNaN(d.getTime())){
+    return d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0"+d.getDate()).slice(-2);
+  }
+  return "";
+}
+function coerceFit(v){
+  var n = parseFloat(String(v).replace(/[^0-9.]/g,""));
+  if(isNaN(n)) return 3;
+  if(n > 5 && n <= 100) n = Math.round(n/20);       /* someone exported 0-100 */
+  return Math.min(5, Math.max(1, Math.round(n)));
+}
+function rowToLead(row, mapping, headers){
+  var l = normalizeLead({}), notes = [], sizeHeader = "";
+  mapping.forEach(function(field, idx){
+    if(field === "ignore") return;
+    var v = (row[idx] || "").trim();
+    if(!v) return;
+    switch(field){
+      case "fit": l.fit = coerceFit(v); break;
+      case "status": l.status = coerceStatus(v); break;
+      case "followUp": l.followUp = coerceDate(v); break;
+      case "category": l.category = coerceCategory(v); break;
+      case "notes": notes.push(v); break;
+      case "size":
+        l.size = (v.match(/[\d,]+/) || [v])[0].replace(/,/g,"");
+        sizeHeader = normHeader(headers[idx] || "");
+        l.sizeKind = /employee|headcount|head count|staff|people|student/.test(sizeHeader) ? "people" : "units";
+        break;
+      case "sizeBasis":
+        l.sizeBasis = /^(y|yes|true|confirm|verified)/i.test(v) || /confirm/i.test(v) ? "Confirmed" : "Estimated";
+        break;
+      default: l[field] = v;
+    }
+  });
+  notes.forEach(function(n){ l.notes.push({date:todayISO(), text:n}); });
+  return l;
+}
+
+/* ---------- import review screen ---------- */
+function reviewCSV(text){
+  var rows = parseCSV(text);
+  if(rows.length < 2){ toast("That CSV has no data rows"); return; }
+  var headers = rows[0], data = rows.slice(1);
+  var mapping = headers.map(guessField);
+
+  var sheet = openSheet("Check the columns", {full:true});
+  var body = $(".sbody", sheet);
+  body.appendChild(el("div",{class:"panel",style:"margin-top:10px"},[
+    el("p",{text:"Found " + data.length + " row" + (data.length===1?"":"s") + " and " +
+      headers.length + " column" + (headers.length===1?"":"s") + ". Here is what each column was matched to — change anything that looks wrong, then import."})
+  ]));
+
+  headers.forEach(function(h, idx){
+    var sample = "";
+    for(var r=0;r<data.length && !sample;r++) sample = (data[r][idx]||"").trim();
+    var sel = el("select",{onchange:function(){ mapping[idx] = sel.value; }});
+    FIELDS.forEach(function(f){
+      sel.appendChild(el("option",{value:f[0],text:f[1],selected:mapping[idx] === f[0] ? "selected" : null}));
+    });
+    body.appendChild(el("div",{class:"map"},[
+      el("div",{class:"h",text:h || "(unnamed column " + (idx+1) + ")"}),
+      el("div",{class:"s",text:sample ? "First value: " + (sample.length > 60 ? sample.slice(0,60) + "…" : sample) : "No values in this column"}),
+      sel
+    ]));
+  });
+
+  body.appendChild(el("div",{class:"stack",style:"margin-top:18px"},[
+    el("button",{class:"btn pri wide",text:"Import " + data.length + " row" + (data.length===1?"":"s"),
+      onclick:function(){ doImport(headers, data, mapping); }}),
+    el("button",{class:"btn wide",text:"Cancel",onclick:closeSheet})
+  ]));
+}
+
+function doImport(headers, data, mapping){
+  if(mapping.indexOf("name") === -1){ toast("Pick which column holds the business name"); return; }
+  var added = 0, skipped = 0, blank = 0, skippedNames = [];
+  data.forEach(function(row){
+    var lead = rowToLead(row, mapping, headers);
+    if(!lead.name){ blank++; return; }
+    var dup = null;
+    for(var i=0;i<DB.leads.length;i++){
+      if(isDuplicate(lead, DB.leads[i])){ dup = DB.leads[i]; break; }
+    }
+    /* also guard against duplicates inside the same file */
+    if(dup){
+      skipped++;
+      if(skippedNames.length < 12) skippedNames.push(lead.name);
+      return;   /* existing notes and status are never touched */
+    }
+    lead.notes.unshift({date:todayISO(), text:"Imported from CSV."});
+    DB.leads.push(lead);
+    added++;
+  });
+  save(); closeSheet(); render();
+
+  var sheet = openSheet("Import finished");
+  var body = $(".sbody", sheet);
+  body.appendChild(el("div",{class:"panel",style:"margin-top:10px"},[
+    el("div",{class:"drow"},[el("div",{class:"k",text:"Added"}), el("div",{class:"v",text:added + " new lead" + (added===1?"":"s")})]),
+    el("div",{class:"drow"},[el("div",{class:"k",text:"Skipped"}), el("div",{class:"v",text:skipped + " duplicate" + (skipped===1?"":"s") + " already in your pipeline"})]),
+    blank ? el("div",{class:"drow"},[el("div",{class:"k",text:"Ignored"}), el("div",{class:"v",text:blank + " row" + (blank===1?"":"s") + " with no business name"})]) : null
+  ]));
+  if(skippedNames.length){
+    body.appendChild(el("div",{class:"sec",text:"Skipped as duplicates"}));
+    var list = el("div",{class:"panel"});
+    skippedNames.forEach(function(n){ list.appendChild(el("div",{class:"drow"},[el("div",{class:"v",text:n})])); });
+    if(skipped > skippedNames.length)
+      list.appendChild(el("div",{class:"drow"},[el("div",{class:"v",text:"…and " + (skipped - skippedNames.length) + " more"})]));
+    body.appendChild(list);
+  }
+  body.appendChild(el("div",{class:"panel",style:"margin-top:14px"},[
+    el("p",{style:"margin:0",text:"Nothing was overwritten. Leads you already had kept their status, follow-up date and notes exactly as they were."})
+  ]));
+  body.appendChild(el("button",{class:"btn pri wide",style:"margin-top:16px",text:"Done",onclick:function(){
+    closeSheet(); view.tab = "pipeline"; render();
+  }}));
+}
+
+/* =========================================================================
+   Backup: export / restore
+   ========================================================================= */
+function exportJSON(){
+  var payload = {
+    app:"Endura Pinnacle Vending — Lead Pipeline",
+    version:1,
+    exportedAt:new Date().toISOString(),
+    leads:DB.leads
+  };
+  var name = "endura-leads-" + todayISO() + ".json";
+  var blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  var url = URL.createObjectURL(blob);
+  var a = el("a",{href:url,download:name});
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  DB.lastExport = todayISO(); save(); render();
+  toast("Backup saved: " + name);
+}
+function restoreJSON(text){
+  var d;
+  try{ d = JSON.parse(text); }
+  catch(e){ toast("That file is not a valid backup"); return; }
+  var leads = Array.isArray(d) ? d : d.leads;
+  if(!Array.isArray(leads)){ toast("No leads found in that file"); return; }
+  if(!confirm("Restore " + leads.length + " leads? This replaces everything currently in the app.")) return;
+  DB.leads = leads.map(normalizeLead);
+  DB.seeded = false;
+  save(); closeSheet(); render();
+  toast("Restored " + DB.leads.length + " leads");
+}
+function exportOverdue(){
+  if(!DB.lastExport) return true;
+  return daysBetween(DB.lastExport, todayISO()) >= EXPORT_WARN_DAYS;
+}
+
+/* =========================================================================
+   Screens
+   ========================================================================= */
+function groupHeader(status, n){
+  return el("div",{class:"ghead"},[
+    el("span",{class:"dot",style:"background:var(--" + STATUS_CLASS[status] + ")"}),
+    el("span",{text:status}),
+    el("span",{class:"n",text:String(n)})
+  ]);
+}
+
+function screenPipeline(){
+  var frag = document.createDocumentFragment();
+  var q = view.q.trim();
+  var pool = DB.leads.filter(function(l){ return matchesQuery(l,q); });
+
+  if(!DB.leads.length){
+    frag.appendChild(el("div",{class:"empty"},[
+      el("b",{text:"No leads yet"}),
+      el("span",{text:"Add one by hand, or import this morning's CSV from the Data tab."})
+    ]));
+    return frag;
+  }
+  if(!pool.length){
+    frag.appendChild(el("div",{class:"empty"},[
+      el("b",{text:"Nothing matches “" + q + "”"}),
+      el("span",{text:"Search looks at business name, address, contact and notes."})
+    ]));
+    return frag;
+  }
+  STATUSES.forEach(function(s){
+    var list = sortLeads(pool.filter(function(l){ return l.status === s; }));
+    if(!list.length) return;
+    var g = el("div",{class:"group"});
+    g.appendChild(groupHeader(s, list.length));
+    list.forEach(function(l){ g.appendChild(cardEl(l)); });
+    frag.appendChild(g);
+  });
+  return frag;
+}
+
+function screenToday(){
+  var frag = document.createDocumentFragment();
+  var q = view.q.trim();
+  var t = todayISO();
+  var pool = DB.leads.filter(function(l){ return isDueList(l) && matchesQuery(l,q); });
+
+  var overdue = pool.filter(function(l){ return l.followUp && daysBetween(t,l.followUp) < 0; });
+  var due     = pool.filter(function(l){ return l.followUp && daysBetween(t,l.followUp) === 0; });
+  var hot     = pool.filter(function(l){ return overdue.indexOf(l) === -1 && due.indexOf(l) === -1; });
+
+  overdue.sort(function(a,b){ return a.followUp < b.followUp ? -1 : 1; });
+  due = sortLeads(due);
+  hot = sortLeads(hot);
+
+  if(!pool.length){
+    frag.appendChild(el("div",{class:"empty"},[
+      el("b",{text:"Nothing due"}),
+      el("span",{text:"No follow-ups are due and there are no hot new leads waiting. Go stock a machine."})
+    ]));
+    return frag;
+  }
+  function block(title,list){
+    if(!list.length) return;
+    var g = el("div",{class:"group"});
+    g.appendChild(el("div",{class:"ghead"},[el("span",{text:title}), el("span",{class:"n",text:String(list.length)})]));
+    list.forEach(function(l){ g.appendChild(cardEl(l)); });
+    frag.appendChild(g);
+  }
+  block("Overdue", overdue);
+  block("Due today", due);
+  block("New · fit 4–5", hot);
+  return frag;
+}
+
+function screenAdd(){
+  var frag = document.createDocumentFragment();
+  frag.appendChild(el("div",{class:"group"},[
+    el("div",{class:"panel",style:"margin-top:14px"},[
+      el("h3",{text:"Found one in the field?",style:"margin-bottom:8px"}),
+      el("p",{text:"Business name is the only thing you have to fill in. Everything else can wait until you are back in the truck."}),
+      el("button",{class:"btn pri wide",text:"＋  New lead",onclick:function(){ openForm(null); }})
+    ])
+  ]));
+  frag.appendChild(el("div",{class:"sec",text:"Recently added"}));
+  var recent = DB.leads.slice().sort(function(a,b){ return a.created < b.created ? 1 : -1; }).slice(0,5);
+  if(!recent.length) frag.appendChild(el("div",{class:"empty",text:"Nothing added yet."}));
+  recent.forEach(function(l){ frag.appendChild(cardEl(l)); });
+  return frag;
+}
+
+function screenData(){
+  var frag = document.createDocumentFragment();
+
+  /* --- CSV import --- */
+  frag.appendChild(el("div",{class:"sec",text:"Import this morning's CSV"}));
+  var fileIn = el("input",{type:"file",accept:".csv,text/csv,text/plain",onchange:function(){
+    var f = fileIn.files && fileIn.files[0];
+    if(!f) return;
+    var fr = new FileReader();
+    fr.onload = function(){ reviewCSV(fr.result); fileIn.value = ""; };
+    fr.onerror = function(){ toast("Could not read that file"); };
+    fr.readAsText(f);
+  }});
+  var paste = el("textarea",{rows:"5",placeholder:"Or paste CSV text here, header row first…",
+    autocapitalize:"none",autocorrect:"off",spellcheck:"false"});
+  frag.appendChild(el("div",{class:"panel stack"},[
+    el("p",{style:"margin:0",text:"Columns are matched by their header names. You get to check the matches before anything is imported. Duplicates are skipped and nothing you already have is overwritten."}),
+    el("div",{class:"field",style:"margin:0"},[el("label",{text:"Pick a CSV file"}), fileIn]),
+    el("div",{class:"field",style:"margin:0"},[el("label",{text:"Or paste CSV text"}), paste]),
+    el("button",{class:"btn pri wide",text:"Read pasted CSV",onclick:function(){
+      if(!paste.value.trim()){ toast("Paste some CSV first"); return; }
+      reviewCSV(paste.value);
+    }})
+  ]));
+
+  /* --- backup --- */
+  frag.appendChild(el("div",{class:"sec",text:"Backup"}));
+  var restoreIn = el("input",{type:"file",accept:".json,application/json",onchange:function(){
+    var f = restoreIn.files && restoreIn.files[0];
+    if(!f) return;
+    var fr = new FileReader();
+    fr.onload = function(){ restoreJSON(fr.result); restoreIn.value = ""; };
+    fr.onerror = function(){ toast("Could not read that file"); };
+    fr.readAsText(f);
+  }});
+  frag.appendChild(el("div",{class:"panel stack"},[
+    el("p",{style:"margin:0",text:DB.lastExport
+      ? "Last backup: " + prettyDate(DB.lastExport) + " (" + daysBetween(DB.lastExport, todayISO()) + " days ago)."
+      : "You have never made a backup. Everything lives in Safari's storage, which can be cleared."}),
+    el("button",{class:"btn pri wide",text:"⤓  Export backup file",onclick:exportJSON}),
+    el("div",{class:"field",style:"margin:0"},[el("label",{text:"Restore from a backup file"}), restoreIn])
+  ]));
+
+  /* --- example leads / reset --- */
+  frag.appendChild(el("div",{class:"sec",text:"Housekeeping"}));
+  var seedCount = DB.leads.filter(function(l){ return l.seed; }).length;
+  frag.appendChild(el("div",{class:"panel stack"},[
+    el("p",{style:"margin:0",text:seedCount
+      ? seedCount + " example lead" + (seedCount===1?"":"s") + " are in the list so you can see how it works."
+      : "No example leads left."}),
+    seedCount ? el("button",{class:"btn wide",text:"Clear the " + seedCount + " example leads",onclick:function(){
+      DB.leads = DB.leads.filter(function(l){ return !l.seed; });
+      save(); render(); toast("Examples cleared");
+    }}) : null,
+    el("button",{class:"btn wide danger",text:"Erase everything",onclick:function(){
+      if(!confirm("Erase all " + DB.leads.length + " leads from this phone? Export a backup first if you want to keep them.")) return;
+      if(!confirm("Really erase everything? There is no undo.")) return;
+      DB.leads = []; DB.seeded = false; save(); render(); toast("All data erased");
+    }})
+  ]));
+
+  /* --- totals --- */
+  frag.appendChild(el("div",{class:"sec",text:"Pipeline totals"}));
+  var totals = el("div",{class:"panel"});
+  STATUSES.forEach(function(s){
+    var n = DB.leads.filter(function(l){ return l.status === s; }).length;
+    totals.appendChild(el("div",{class:"drow"},[
+      el("div",{class:"k",text:s}), el("div",{class:"v",text:String(n)})
+    ]));
+  });
+  totals.appendChild(el("div",{class:"drow"},[
+    el("div",{class:"k",text:"Total"}), el("div",{class:"v",text:String(DB.leads.length)})
+  ]));
+  frag.appendChild(totals);
+  return frag;
+}
+
+function searchBar(){
+  var input = el("input",{type:"search",placeholder:"Search name, address, notes…",value:view.q,
+    autocapitalize:"none",autocorrect:"off",
+    oninput:function(){ view.q = input.value; fillResults(); }});
+  var clear = el("button",{text:"Clear",onclick:function(){
+    view.q = ""; input.value = ""; fillResults();
+  }});
+  return el("div",{class:"searchbar"},[input, clear]);
+}
+/* only the results list is redrawn while typing, so the keyboard stays put */
+function fillResults(){
+  var box = $("#results");
+  if(!box) return;
+  box.innerHTML = "";
+  box.appendChild(view.tab === "today" ? screenToday() : screenPipeline());
+}
+
+/* =========================================================================
+   Render
+   ========================================================================= */
+function renderCounts(){
+  var c = counts(), box = $("#counts");
+  box.innerHTML = "";
+  box.appendChild(el("button",{class:"count",onclick:function(){ view.tab = "pipeline"; view.q = ""; render(); }},[
+    el("b",{text:String(c.New)}), el("span",{text:"New"})
+  ]));
+  box.appendChild(el("button",{class:"count" + (c.due ? " warn" : ""),onclick:function(){ view.tab = "today"; view.q = ""; render(); }},[
+    el("b",{text:String(c.due)}), el("span",{text:"to call today"})
+  ]));
+  box.appendChild(el("span",{class:"count"},[
+    el("b",{text:String(DB.leads.length)}), el("span",{text:"total"})
+  ]));
+}
+function bannerEl(){
+  var hasReal = DB.leads.some(function(l){ return !l.seed; });
+  var overdue = DB.lastExport ? daysBetween(DB.lastExport, todayISO()) >= EXPORT_WARN_DAYS : hasReal;
+  if(!overdue) return null;
+  if(DB.banner && daysBetween(DB.banner, todayISO()) < 7) return null;
+  return el("div",{class:"banner"},[
+    el("b",{text:DB.lastExport ? "Time to back up" : "You have never backed up"}),
+    el("span",{text:DB.lastExport
+      ? "Your last backup was " + daysBetween(DB.lastExport, todayISO()) + " days ago. If Safari clears its storage, unbacked leads are gone."
+      : "All of this lives in Safari's storage on this phone. One tap saves a copy you can restore later."}),
+    el("div",{class:"row"},[
+      el("button",{class:"btn sm pri",text:"Export now",onclick:exportJSON}),
+      el("button",{class:"btn sm",text:"Not now",onclick:function(){ DB.banner = todayISO(); save(); render(); }})
+    ])
+  ]);
+}
+function renderMain(){
+  var main = $("#main");
+  main.innerHTML = "";
+  var b = bannerEl();
+  if(b && view.tab !== "add") main.appendChild(b);
+  if(view.tab === "pipeline" || view.tab === "today"){
+    main.appendChild(searchBar());
+    main.appendChild(el("div",{id:"results"}));
+    fillResults();
+  }
+  else if(view.tab === "add") main.appendChild(screenAdd());
+  else main.appendChild(screenData());
+}
+function renderNav(){
+  var c = counts();
+  Array.prototype.forEach.call(document.querySelectorAll("#nav button"), function(b){
+    b.className = b.getAttribute("data-tab") === view.tab ? "on" : "";
+    var old = b.querySelector(".badge"); if(old) old.remove();
+    if(b.getAttribute("data-tab") === "today" && c.due)
+      b.appendChild(el("span",{class:"badge",text:String(c.due)}));
+  });
+}
+function render(){ renderCounts(); renderNav(); renderMain(); }
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+Array.prototype.forEach.call(document.querySelectorAll("#nav button"), function(b){
+  b.addEventListener("click", function(){
+    var t = b.getAttribute("data-tab");
+    if(t === "add"){ view.tab = "add"; render(); openForm(null); return; }
+    view.tab = t; view.q = ""; render();
+    window.scrollTo(0,0);
+  });
+});
+load();
+render();
+</script>
+</body>
+</html>
