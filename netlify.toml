@@ -1,0 +1,5 @@
+# Netlify settings for the digital business card.
+# The website files live in the "card" folder. No build step is needed.
+[build]
+  publish = "card"
+  command = ""

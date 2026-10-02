@@ -1,0 +1,19 @@
+# Hosting settings for Netlify and Cloudflare Pages (both read this file).
+
+# The contact file must be sent as text/vcard so iPhone shows
+# "Create New Contact" and Android opens it in Contacts.
+/contact.vcf
+  Content-Type: text/vcard; charset=utf-8
+  Content-Disposition: inline; filename="Michael_Aguilar.vcf"
+  Cache-Control: public, max-age=300
+
+/assets/*
+  Cache-Control: public, max-age=604800
+
+/assets/demo.mp4
+  Content-Type: video/mp4
+  Cache-Control: public, max-age=604800
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
