@@ -1,0 +1,15 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Aguilar;Michael;;;
+FN:Michael Aguilar
+ORG:Endura Pinnacle Vending
+TITLE:Owner
+TEL;TYPE=CELL,VOICE,pref:+16262223426
+EMAIL;TYPE=INTERNET,WORK,pref:info@endurapinnaclellc.com
+item1.URL;type=pref:https://www.endurapinnacle.com/
+item1.X-ABLabel:Website
+item2.URL:https://www.linkedin.com/in/mike-from-endura-pinnacle-vending-992945422
+item2.X-ABLabel:LinkedIn
+X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/mike-from-endura-pinnacle-vending-992945422
+NOTE:Endura Pinnacle LLC. Vending machines and micro markets\, free for the host. Serving Los Angeles County.
+END:VCARD

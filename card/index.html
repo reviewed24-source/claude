@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- =====================================================================
+     YOUR DETAILS: EDIT HERE
+     Change the values inside the quotes below. The page updates itself.
+
+     IMPORTANT: if you change your phone, email, website, title, or LinkedIn,
+     also update contact.vcf (the "Save Contact" file) so they match.
+     The <title> and "og:" preview tags just below this block also contain
+     your name and headline. Update them too if those change.
+     ===================================================================== -->
+<script>
+  window.CARD = {
+    name:          "Michael Aguilar",
+    title:         "Owner",
+    business:      "Endura Pinnacle Vending",
+    legalName:     "Endura Pinnacle LLC",
+    phoneDisplay:  "626.222.3426",
+    phoneLink:     "+16262223426",
+    email:         "info@endurapinnaclellc.com",
+    website:       "https://www.endurapinnacle.com/",
+    linkedin:      "https://www.linkedin.com/in/mike-from-endura-pinnacle-vending-992945422",
+    serviceArea:   "Los Angeles County",
+    textMessage:   "Hi Michael, we met at ___. I'm interested in a vending machine for my location.",
+    // Paste your Google Apps Script web app URL between the quotes (see GUIDE.md, Part 4).
+    formEndpoint:  ""
+  };
+</script>
+<!-- ===================== END OF YOUR DETAILS ===================== -->
+
+<title>Michael Aguilar | Endura Pinnacle Vending</title>
+<meta name="description" content="Free vending machines and micro markets for your location. Serving Los Angeles County.">
+<meta name="theme-color" content="#006847" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1513" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+
+<!-- Link preview when the address is texted or shared -->
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Michael Aguilar | Endura Pinnacle Vending">
+<meta property="og:description" content="Free vending machines for your location. Tap to save my contact.">
+<meta property="og:url" content="https://card.endurapinnacle.com/">
+<meta property="og:image" content="https://card.endurapinnacle.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Michael Aguilar, Endura Pinnacle Vending, next to a smart cooler">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" as="image" href="assets/poster.jpg">
+
+<style>
+  :root {
+    --bg: #f6f7f4;
+    --surface: #ffffff;
+    --text: #0e1513;
+    --muted: #4a5651;
+    --brand: #006847;
+    --brand-text: #ffffff;
+    --brand-strong: #00513a;
+    --accent: #c8102e;
+    --line: #d9dfdb;
+    --input: #ffffff;
+    --error-bg: #fdecee;
+    --ok-bg: #e6f4ee;
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1513;
+      --surface: #16201c;
+      --text: #eef3f0;
+      --muted: #a9b6b0;
+      --brand: #5fd1a0;
+      --brand-text: #0e1513;
+      --brand-strong: #7fe0b6;
+      --accent: #ff6b6b;
+      --line: #2b3833;
+      --input: #0e1513;
+      --error-bg: #3a1b1f;
+      --ok-bg: #12301f;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .stripe { height: 6px; background: linear-gradient(90deg, #006847 0 33.3%, #ffffff 33.3% 66.6%, #c8102e 66.6%); }
+  main { max-width: 480px; margin: 0 auto; padding: 24px 16px 0; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* 1. Header */
+  header { text-align: center; }
+  .logo { width: 76px; height: 76px; display: block; margin: 0 auto 12px; border-radius: 18px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  .role { margin: 4px 0 0; color: var(--muted); font-size: 17px; }
+  .role strong { color: var(--text); font-weight: 600; }
+  .headline { margin: 18px 0 6px; font-size: 23px; line-height: 1.25; color: var(--brand); font-weight: 750; }
+  .blurb { margin: 0; color: var(--muted); font-size: 16px; }
+
+  /* 2. Video */
+  .video-wrap { position: relative; margin: 20px auto 0; width: min(100%, calc(56svh * 9 / 16)); min-width: 220px; aspect-ratio: 9 / 16; border-radius: var(--radius); overflow: hidden; background: #000; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+  .video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sound-btn {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px;
+    background: rgba(0,0,0,.72); color: #fff; font: inherit; font-weight: 650; font-size: 16px;
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap;
+  }
+  .sound-btn svg { width: 20px; height: 20px; }
+  .caption { text-align: center; color: var(--muted); font-size: 15px; margin: 10px 0 0; }
+
+  /* 3. Save Contact */
+  .save {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; min-height: 68px; margin: 22px 0 0; padding: 0 20px;
+    background: var(--brand); color: var(--brand-text); text-decoration: none;
+    font-size: 21px; font-weight: 750; border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(0,104,71,.35);
+  }
+  .save:active { transform: scale(.98); }
+  .save svg { width: 26px; height: 26px; flex: none; }
+
+  /* 4. Action buttons */
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 58px; padding: 0 12px; border-radius: 14px;
+    background: var(--surface); color: var(--text); border: 2px solid var(--line);
+    text-decoration: none; font-weight: 650; font-size: 17px;
+  }
+  .btn svg { width: 22px; height: 22px; flex: none; color: var(--brand); }
+  .btn:active { transform: scale(.98); }
+  .btn.wide { grid-column: 1 / -1; }
+
+  /* 5. Form */
+  .lead { margin-top: 28px; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); padding: 20px 16px; }
+  .lead h2 { margin: 0 0 4px; font-size: 22px; line-height: 1.25; }
+  .lead > p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+  .field { margin-bottom: 14px; }
+  label { display: block; font-weight: 650; margin-bottom: 6px; font-size: 16px; }
+  .opt { font-weight: 400; color: var(--muted); }
+  input, select, textarea {
+    width: 100%; min-height: 52px; padding: 12px 14px; font: inherit; font-size: 17px;
+    color: var(--text); background: var(--input); border: 2px solid var(--line); border-radius: 12px;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 30%, transparent); }
+  .hp { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; overflow: hidden; }
+  .submit {
+    width: 100%; min-height: 58px; border: 0; border-radius: 14px; cursor: pointer;
+    background: var(--brand); color: var(--brand-text); font: inherit; font-size: 19px; font-weight: 750;
+  }
+  .submit[disabled] { opacity: .65; cursor: wait; }
+  .msg { display: none; margin-top: 14px; padding: 14px; border-radius: 12px; font-size: 16px; }
+  .msg.show { display: block; }
+  .msg.ok { background: var(--ok-bg); }
+  .msg.err { background: var(--error-bg); }
+  .msg a { font-weight: 700; color: inherit; }
+
+  /* 6. Footer */
+  footer { text-align: center; color: var(--muted); font-size: 15px; padding: 28px 16px 8px; }
+  footer strong { color: var(--text); display: block; font-size: 17px; }
+
+  /* Sticky Save Contact bar, shown until the main button is on screen */
+  .sticky {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-top: 1px solid var(--line);
+    transition: transform .25s ease;
+  }
+  .sticky.hide { transform: translateY(110%); }
+  .sticky .save { margin: 0 auto; max-width: 448px; min-height: 58px; font-size: 19px; box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .sticky { transition: none; } }
+</style>
+</head>
+<body>
+<div class="stripe" aria-hidden="true"></div>
+
+<main>
+  <!-- 1. Logo, name, title, business, headline -->
+  <header>
+    <img class="logo" src="assets/logo.svg" width="76" height="76" alt="Endura Pinnacle Vending logo">
+    <h1 data-card="name">Michael Aguilar</h1>
+    <p class="role"><span data-card="title">Owner</span>, <strong data-card="business">Endura Pinnacle Vending</strong></p>
+    <p class="headline">Free vending machines for your location</p>
+    <p class="blurb">I place vending machines and micro markets stocked with snacks and cold drinks at places like offices, warehouses, schools, hotels, gyms, and apartment buildings, or any location with high foot traffic. It's free for you: no installation cost, and I handle stocking, restocking, and repairs.</p>
+  </header>
+
+  <!-- 2. Demo video (loads after the page so it never slows anything down) -->
+  <div class="video-wrap">
+    <video id="demo" muted loop playsinline preload="none" poster="assets/poster.jpg"
+           aria-label="Demo of the smart cooler tap to pay checkout"
+           data-src="assets/demo.mp4"></video>
+    <button class="sound-btn" id="soundBtn" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+      <span>Tap for sound</span>
+    </button>
+  </div>
+  <p class="caption">Tap a card or phone, the door unlocks, grab what you want, and close the door. Checkout takes about 30 seconds.</p>
+
+  <!-- 3. Save Contact -->
+  <a class="save" id="saveMain" href="contact.vcf">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1"/><path d="M19 8v6M16 11h6"/></svg>
+    Save Contact
+  </a>
+
+  <!-- 4. Contact buttons -->
+  <nav class="actions" aria-label="Contact Michael">
+    <a class="btn" data-link="sms" href="sms:+16262223426?&body=Hi%20Michael%2C%20we%20met%20at%20___.%20I'm%20interested%20in%20a%20vending%20machine%20for%20my%20location.">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+      Text Me
+    </a>
+    <a class="btn" data-link="tel" href="tel:+16262223426">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+      Call
+    </a>
+    <a class="btn" data-link="email" href="mailto:info@endurapinnaclellc.com">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+      Email
+    </a>
+    <a class="btn" data-link="website" href="https://www.endurapinnacle.com/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+      Website
+    </a>
+    <a class="btn wide" data-link="linkedin" href="https://www.linkedin.com/in/mike-from-endura-pinnacle-vending-992945422" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zM7.1 20.5H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0z"/></svg>
+      LinkedIn
+    </a>
+  </nav>
+
+  <!-- 5. Lead form -->
+  <section class="lead" aria-labelledby="leadTitle">
+    <h2 id="leadTitle">Want a machine at your location?</h2>
+    <p>Tell me a little about your place and I'll get back to you.</p>
+    <form id="leadForm" novalidate>
+      <div class="field">
+        <label for="f-name">Your name</label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="100">
+      </div>
+      <div class="field">
+        <label for="f-company">Company</label>
+        <input id="f-company" name="company" type="text" autocomplete="organization" required maxlength="150">
+      </div>
+      <div class="field">
+        <label for="f-phone">Phone</label>
+        <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="30">
+      </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="150">
+      </div>
+      <div class="field">
+        <label for="f-people">Number of people on site</label>
+        <select id="f-people" name="people" required>
+          <option value="" selected disabled>Choose one</option>
+          <option>Under 25</option>
+          <option>25 to 50</option>
+          <option>50 to 100</option>
+          <option>Over 100</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-note">Note <span class="opt">(optional)</span></label>
+        <textarea id="f-note" name="note" maxlength="1000"></textarea>
+      </div>
+      <!-- Spam trap: people never see this box. Bots fill it in, and those submissions are ignored. -->
+      <div class="hp" aria-hidden="true">
+        <label for="f-website">Leave this empty</label>
+        <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <button class="submit" id="submitBtn" type="submit">Send</button>
+      <div class="msg ok" id="msgOk" role="status" tabindex="-1">Thank you! I got your details and will be in touch soon.</div>
+      <div class="msg err" id="msgErr" role="alert" tabindex="-1">Sorry, that didn't go through. Please call or text me at <a data-link="tel" href="tel:+16262223426"><span data-card="phoneDisplay">626.222.3426</span></a>.</div>
+    </form>
+  </section>
+</main>
+
+<!-- 6. Footer -->
+<footer>
+  <strong>Serving <span data-card="serviceArea">Los Angeles County</span></strong>
+  <span>&copy; <span id="year">2026</span> <span data-card="legalName">Endura Pinnacle LLC</span></span>
+</footer>
+
+<div class="sticky" id="sticky">
+  <a class="save" href="contact.vcf">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1"/><path d="M19 8v6M16 11h6"/></svg>
+    Save Contact
+  </a>
+</div>
+
+<script>
+(function () {
+  var C = window.CARD;
+
+  // Fill in details from the CARD block at the top
+  document.querySelectorAll("[data-card]").forEach(function (el) {
+    var v = C[el.getAttribute("data-card")];
+    if (v) el.textContent = v;
+  });
+  var links = {
+    sms: "sms:" + C.phoneLink + "?&body=" + encodeURIComponent(C.textMessage),
+    tel: "tel:" + C.phoneLink,
+    email: "mailto:" + C.email,
+    website: C.website,
+    linkedin: C.linkedin
+  };
+  document.querySelectorAll("[data-link]").forEach(function (el) {
+    el.href = links[el.getAttribute("data-link")];
+  });
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Video: start loading only after the rest of the page is ready
+  var video = document.getElementById("demo");
+  var soundBtn = document.getElementById("soundBtn");
+  var soundLabel = soundBtn.querySelector("span");
+  var conn = navigator.connection || {};
+  var slow = conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "");
+  var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function loadVideo() {
+    if (!video.getAttribute("src")) {
+      video.src = video.getAttribute("data-src");
+      video.preload = "auto";
+    }
+  }
+  function startVideo() {
+    loadVideo();
+    var p = video.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+  if (!slow && !calm) {
+    window.addEventListener("load", function () { setTimeout(startVideo, 300); });
+  } else {
+    soundLabel.textContent = "Tap to play";
+  }
+
+  soundBtn.addEventListener("click", function () {
+    var turnOn = video.muted || video.paused;
+    if (turnOn) {
+      loadVideo();
+      video.muted = false;
+      if (video.paused) startVideo();
+      soundLabel.textContent = "Tap to mute";
+      soundBtn.setAttribute("aria-pressed", "true");
+    } else {
+      video.muted = true;
+      soundLabel.textContent = "Tap for sound";
+      soundBtn.setAttribute("aria-pressed", "false");
+    }
+  });
+
+  // Sticky Save Contact bar hides while the big button is visible
+  var sticky = document.getElementById("sticky");
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      sticky.classList.toggle("hide", entries[0].isIntersecting);
+    }).observe(document.getElementById("saveMain"));
+  }
+
+  // Lead form
+  var form = document.getElementById("leadForm");
+  var btn = document.getElementById("submitBtn");
+  var ok = document.getElementById("msgOk");
+  var err = document.getElementById("msgErr");
+
+  function show(el) {
+    ok.classList.remove("show"); err.classList.remove("show");
+    el.classList.add("show"); el.focus();
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    // Honeypot filled in means a bot. Pretend it worked and send nothing.
+    if (form.website.value) { form.reset(); show(ok); return; }
+
+    if (!C.formEndpoint) { show(err); return; }
+
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    var data = new URLSearchParams(new FormData(form));
+    data.append("page", location.href);
+
+    fetch(C.formEndpoint, { method: "POST", body: data })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res && res.result === "success") { form.reset(); show(ok); }
+        else { show(err); }
+      })
+      .catch(function () { show(err); })
+      .then(function () { btn.disabled = false; btn.textContent = "Send"; });
+  });
+})();
+</script>
+</body>
+</html>
