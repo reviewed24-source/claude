@@ -32,7 +32,7 @@ Hi Michael. This guide walks you through everything, one step at a time. You don
 2. Scroll to the bottom. Click **Ready for review**.
 3. Click the green **Merge pull request** button, then **Confirm merge**.
 
-This puts the card files into the main version of your project, which Netlify will read.
+This puts the card files into the main version of your project (GitHub calls it the default branch; yours is named `claude/laughing-galileo-nl5Dm`), which Netlify will read.
 
 ### Step B: Create the Netlify site
 1. Go to **app.netlify.com/signup**.
@@ -41,7 +41,7 @@ This puts the card files into the main version of your project, which Netlify wi
 4. Click **GitHub**. If it asks for permission, click **Authorize** or **Configure the Netlify app**, and allow access to the `claude` repository.
 5. Click the repository named **claude**.
 6. You'll see a settings form. Fill it in exactly like this:
-   * **Branch to deploy:** `main`
+   * **Branch to deploy:** leave what Netlify picks. It should be `claude/laughing-galileo-nl5Dm`, your default branch.
    * **Base directory:** leave it empty
    * **Build command:** leave it empty
    * **Publish directory:** `card` (Netlify usually fills this in by itself)
