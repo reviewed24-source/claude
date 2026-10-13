@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snack Swipe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Bungee&family=DotGothic16&display=swap">
+<style>
+/* Layout: the swipe deck on the left, a live vending machine on the right that fills slot by slot as snacks get stocked; on phones the machine tucks under the deck as a compact strip. */
+:root {
+  --bg: #ECF0F4;
+  --surface: #FFFFFF;
+  --surface-2: #F3F6F9;
+  --ink: #132231;
+  --muted: #566778;
+  --line: #D2DBE4;
+  --cabinet: #24497A;
+  --cabinet-2: #183559;
+  --cabinet-ink: #EEF3F9;
+  --interior: #E7EEF4;
+  --interior-shade: rgba(20, 40, 60, 0.18);
+  --display: #0B1218;
+  --led: #FF6A3B;
+  --coil: #98A5B1;
+  --yes: #138A55;
+  --no: #D23F36;
+  --on-accent: #FFFFFF;
+  --focus: #2F6FEB;
+  --shadow: rgba(19, 34, 49, 0.16);
+
+  --font-display: "Bungee", "Arial Black", Impact, system-ui, sans-serif;
+  --font-body: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-led: "DotGothic16", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-2: 1.5rem;
+  --step-3: 2rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1318;
+    --surface: #161F28;
+    --surface-2: #1C2732;
+    --ink: #E6EDF3;
+    --muted: #93A3B2;
+    --line: #2A3743;
+    --cabinet: #2C5590;
+    --cabinet-2: #1D3C67;
+    --cabinet-ink: #EEF3F9;
+    --interior: #DCE5ED;
+    --interior-shade: rgba(0, 0, 0, 0.28);
+    --display: #06090C;
+    --led: #FF7A4D;
+    --coil: #8C99A5;
+    --yes: #2DB873;
+    --no: #F0605A;
+    --on-accent: #FFFFFF;
+    --focus: #7FB0FF;
+    --shadow: rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1318;
+  --surface: #161F28;
+  --surface-2: #1C2732;
+  --ink: #E6EDF3;
+  --muted: #93A3B2;
+  --line: #2A3743;
+  --cabinet: #2C5590;
+  --cabinet-2: #1D3C67;
+  --cabinet-ink: #EEF3F9;
+  --interior: #DCE5ED;
+  --interior-shade: rgba(0, 0, 0, 0.28);
+  --display: #06090C;
+  --led: #FF7A4D;
+  --coil: #8C99A5;
+  --yes: #2DB873;
+  --no: #F0605A;
+  --on-accent: #FFFFFF;
+  --focus: #7FB0FF;
+  --shadow: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.app {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  padding-block: 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand-mark {
+  flex: none;
+  width: 40px; height: 48px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, var(--cabinet), var(--cabinet-2));
+  padding: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 6px;
+  gap: 3px;
+}
+.brand-mark i { background: var(--interior); border-radius: 2px; }
+.brand-mark i:last-child { grid-column: 1 / -1; background: var(--display); }
+.brand-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.brand-sub { margin: 4px 0 0; color: var(--muted); font-size: var(--step--1); }
+
+.tabs {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.tabs button {
+  border: 0;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tab-count {
+  font-family: var(--font-led);
+  font-size: var(--step--1);
+  min-width: 1.6em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--yes);
+  color: var(--on-accent);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Swipe view ---------- */
+.swipe {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) minmax(0, 340px);
+  justify-content: center;
+  align-items: start;
+  gap: 48px;
+}
+.deck-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.progress { display: flex; align-items: center; gap: 12px; }
+.progress-led {
+  font-family: var(--font-led);
+  font-size: var(--step-1);
+  color: var(--led);
+  background: var(--display);
+  padding: 2px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--led) 60%, transparent);
+}
+.progress-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--cabinet);
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+.progress-label { color: var(--muted); font-size: var(--step--1); white-space: nowrap; }
+
+.deck {
+  position: relative;
+  height: clamp(320px, calc(100vh - 330px), 540px);
+  height: clamp(320px, calc(100dvh - 330px), 540px);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.card {
+  position: absolute;
+  inset: 0 0 22px 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px -18px var(--shadow), 0 2px 6px var(--shadow);
+  touch-action: none;
+  transform-origin: 50% 100%;
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.32s ease;
+  will-change: transform;
+}
+.card[data-depth="0"] { cursor: grab; }
+.card.is-dragging { cursor: grabbing; transition: none; }
+.card[data-depth="1"] { transform: translateY(11px) scale(0.955); }
+.card[data-depth="2"] { transform: translateY(22px) scale(0.91); opacity: 0.7; }
+.card.is-flying { pointer-events: none; z-index: 30 !important; }
+
+.card-photo {
+  flex: 1;
+  min-height: 0;
+  background: var(--tint);
+  position: relative;
+  overflow: hidden;
+}
+.card-photo img {
+  position: absolute;
+  inset: 22px 22px 12px;
+  width: calc(100% - 44px);
+  height: calc(100% - 34px);
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.card-body { padding: 14px 20px 18px; display: flex; flex-direction: column; gap: 6px; }
+.card-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: var(--step--1);
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.card-name {
+  margin: 0;
+  font-size: var(--step-3);
+  font-weight: 800;
+  font-stretch: 80%;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.card-desc { margin: 0; color: var(--muted); }
+
+.stamp {
+  position: absolute;
+  top: 22px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 8px 12px 6px;
+  border: 4px solid currentColor;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+.stamp-yes { left: 18px; color: var(--yes); transform: rotate(-12deg); }
+.stamp-no { right: 18px; color: var(--no); transform: rotate(12deg); }
+
+.deck-done {
+  position: absolute;
+  inset: 0 0 22px 0;
+  border: 2px dashed var(--line);
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 24px;
+}
+.done-title { margin: 0; font-family: var(--font-display); font-size: var(--step-2); text-wrap: balance; }
+.done-sub { margin: 0 0 8px; color: var(--muted); }
+
+.actions { display: flex; justify-content: center; align-items: flex-start; gap: 22px; }
+.act {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--muted);
+}
+.act .dial {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  box-shadow: 0 6px 16px -8px var(--shadow);
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.act svg { width: 28px; height: 28px; }
+.act-no .dial { color: var(--no); border-color: color-mix(in srgb, var(--no) 45%, var(--line)); }
+.act-yes .dial { color: var(--yes); border-color: color-mix(in srgb, var(--yes) 45%, var(--line)); }
+.act-undo .dial { width: 46px; height: 46px; margin-top: 9px; color: var(--muted); }
+.act-undo svg { width: 20px; height: 20px; }
+.act:hover .dial, .act.is-hot .dial { transform: scale(1.07); }
+.act-no:hover .dial, .act-no.is-hot .dial { background: var(--no); color: var(--on-accent); border-color: var(--no); }
+.act-yes:hover .dial, .act-yes.is-hot .dial { background: var(--yes); color: var(--on-accent); border-color: var(--yes); }
+.act:disabled { cursor: default; opacity: 0.4; }
+.act:disabled .dial { transform: none; background: var(--surface); }
+.act-no:disabled .dial { color: var(--no); }
+.act-yes:disabled .dial { color: var(--yes); }
+.act-undo:disabled .dial { color: var(--muted); }
+.act:focus-visible { outline: none; }
+.act:focus-visible .dial { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.hint { margin: 0; text-align: center; color: var(--muted); font-size: var(--step--1); }
+@media (pointer: coarse) { .hint-keys { display: none; } }
+@media (pointer: fine) { .hint-touch { display: none; } }
+
+/* ---------- Vending machine ---------- */
+.vm {
+  background: linear-gradient(180deg, var(--cabinet) 0%, var(--cabinet-2) 100%);
+  border-radius: 18px;
+  padding: 14px;
+  color: var(--cabinet-ink);
+  box-shadow: 0 24px 50px -24px var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.vm-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vm-label {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.vm-led {
+  flex: 1;
+  min-width: 0;
+  background: var(--display);
+  color: var(--led);
+  font-family: var(--font-led);
+  font-size: var(--step-0);
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--led) 60%, transparent);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.vm-glass {
+  position: relative;
+  background: var(--interior);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 3px var(--cabinet-2), inset 0 10px 24px var(--interior-shade);
+  overflow: hidden;
+}
+.vm-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 38%, transparent 46%, transparent 64%, rgba(255, 255, 255, 0.18) 70%, transparent 76%);
+  pointer-events: none;
+}
+.vm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 6px; }
+.slot { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
+.slot-bay {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 1.05;
+  position: relative;
+}
+.slot-bay img {
+  position: absolute;
+  inset: 4px 4px 0;
+  width: calc(100% - 8px);
+  height: calc(100% - 4px);
+  object-fit: contain;
+  object-position: 50% 100%;
+  mix-blend-mode: multiply;
+}
+.slot.is-drop .slot-bay img { animation: drop 0.55s cubic-bezier(0.3, 1.5, 0.5, 1) both; }
+@keyframes drop {
+  0% { transform: translateY(-40%) scale(0.6); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+.slot-coil {
+  width: 100%;
+  height: 7px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(110deg, var(--coil) 0 3px, transparent 3px 7px);
+  opacity: 0.9;
+}
+.slot-code {
+  font-family: var(--font-led);
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 2px 6px 1px;
+  border-radius: 3px;
+  background: var(--display);
+  color: var(--cabinet-ink);
+  letter-spacing: 0.06em;
+}
+.slot.is-filled .slot-code { color: var(--led); }
+.vm-base {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.vm-tray {
+  flex: 1;
+  height: 30px;
+  border-radius: 6px;
+  background: var(--display);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  color: var(--coil);
+}
+.vm-coin {
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  background: var(--display);
+  display: grid;
+  place-items: center;
+}
+.vm-coin::before { content: ""; width: 3px; height: 16px; border-radius: 2px; background: var(--coil); }
+
+.vm-large { max-width: 440px; width: 100%; }
+.vm-large .slot-code { font-size: 0.75rem; }
+
+/* ---------- Results ---------- */
+.results { display: flex; flex-direction: column; gap: 40px; }
+.results-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+.res-machine { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.res-head h2, .group-head h2 {
+  margin: 0;
+  font-size: var(--step-3);
+  font-weight: 800;
+  font-stretch: 80%;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.res-sub, .group-meta { margin: 4px 0 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+.res-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-ghost { background: transparent; border-color: var(--line); }
+.btn-danger { background: var(--no); color: var(--on-accent); }
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.confirm p { margin: 0; flex: 1 1 200px; }
+
+.res-lists { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.list-block h3 {
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.list-block h3 .dot { width: 10px; height: 10px; border-radius: 50%; }
+.list-block.yes h3 .dot { background: var(--yes); }
+.list-block.no h3 .dot { background: var(--no); }
+.pick-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pick-row, .rank-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 8px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.thumb {
+  display: block;
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  background: var(--tint);
+  padding: 5px;
+  overflow: hidden;
+}
+.thumb img { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.pick-name { font-weight: 700; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-meta { color: var(--muted); font-size: var(--step--1); }
+.pick-meta .code { font-family: var(--font-led); color: var(--ink); }
+.flip {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: var(--step--1);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.flip:hover { border-color: var(--ink); }
+.empty { margin: 0; padding: 14px; border-radius: 14px; border: 1px dashed var(--line); color: var(--muted); }
+
+.group { display: flex; flex-direction: column; gap: 16px; }
+.group-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+.group-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+.rank {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 8px;
+}
+.rank-row { grid-template-columns: 22px 48px minmax(0, 1fr); }
+.rank-n { font-family: var(--font-led); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.rank-main { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.rank-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.rank-top b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-pct { font-family: var(--font-led); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: inherit; background: var(--yes); }
+.rank-row.is-low .bar i { background: var(--no); }
+.rank-meta { color: var(--muted); font-size: var(--step--1); }
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 820px) {
+  .swipe { grid-template-columns: minmax(0, 420px); gap: 20px; }
+  .results-grid { grid-template-columns: minmax(0, 1fr); }
+  .res-machine { align-items: stretch; }
+  .vm-large { margin-inline: auto; }
+}
+@media (max-width: 820px) {
+  .machine-col .vm { padding: 10px; gap: 8px; border-radius: 14px; }
+  .machine-col .vm-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+  .machine-col .vm-glass { padding: 6px; }
+  .machine-col .slot-code, .machine-col .vm-base { display: none; }
+  .machine-col .slot-coil { height: 4px; }
+}
+@media (max-width: 820px) {
+  .deck {
+    height: clamp(290px, calc(100vh - 420px), 540px);
+    height: clamp(290px, calc(100dvh - 420px), 540px);
+  }
+}
+@media (max-width: 520px) {
+  .brand-sub { display: none; }
+  .brand { gap: 10px; }
+  .brand-mark { width: 30px; height: 36px; padding: 4px; gap: 2px; grid-template-rows: 1fr 1fr 4px; border-radius: 6px; }
+  .brand-name { font-size: 1.125rem; }
+  .topbar { flex-wrap: nowrap; gap: 10px; }
+  .tabs button { padding: 7px 12px; font-size: 0.875rem; }
+  .app { gap: 14px; padding-block: 12px 32px; }
+  .card-name { font-size: 1.75rem; }
+  .card-body { padding: 12px 16px 14px; }
+  .actions { gap: 18px; }
+  .act .dial { width: 58px; height: 58px; }
+  .act-undo .dial { width: 42px; height: 42px; margin-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <div>
+        <h1 class="brand-name">Snack Swipe</h1>
+        <p class="brand-sub">Swipe right to put a snack in the vending machine. Swipe left to leave it out.</p>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="View">
+      <button type="button" role="tab" id="tab-swipe" aria-selected="true" aria-controls="view-swipe">Swipe</button>
+      <button type="button" role="tab" id="tab-results" aria-selected="false" aria-controls="view-results" tabindex="-1">Results <span class="tab-count" id="tabCount">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-swipe" class="swipe" role="tabpanel" aria-labelledby="tab-swipe">
+      <div class="deck-col">
+        <div class="progress">
+          <span class="progress-led" id="progressLed">01/16</span>
+          <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+          <span class="progress-label" id="progressLabel">16 to go</span>
+        </div>
+
+        <div class="deck" id="deck">
+          <div class="deck-done" id="deckDone" hidden>
+            <p class="done-title">That's the whole lineup</p>
+            <p class="done-sub" id="doneSub"></p>
+            <button type="button" class="btn btn-primary" id="seeResults">See your machine</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="act act-no" id="btnNo">
+            <span class="dial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+            Pass
+          </button>
+          <button type="button" class="act act-undo" id="btnUndo">
+            <span class="dial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span>
+            Undo
+          </button>
+          <button type="button" class="act act-yes" id="btnYes">
+            <span class="dial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+            Stock it
+          </button>
+        </div>
+        <p class="hint">
+          <span class="hint-touch">Drag the card right to stock it, left to pass.</span>
+          <span class="hint-keys">Drag the card, or press &larr; and &rarr;. Backspace undoes.</span>
+        </p>
+      </div>
+
+      <aside class="machine-col" aria-label="Your vending machine">
+        <div class="vm" id="vmLive"></div>
+      </aside>
+    </section>
+
+    <section id="view-results" class="results" role="tabpanel" aria-labelledby="tab-results" hidden>
+      <div class="results-grid">
+        <div class="res-machine">
+          <div class="res-head">
+            <h2>Your machine</h2>
+            <p class="res-sub" id="resSummary"></p>
+          </div>
+          <div class="vm vm-large" id="vmResults"></div>
+          <div class="res-actions">
+            <button type="button" class="btn btn-primary" id="keepSwiping">Keep swiping</button>
+            <button type="button" class="btn btn-ghost" id="startOver">Start over</button>
+          </div>
+          <div class="confirm" id="confirmReset" hidden>
+            <p id="confirmText">Clear all your votes and start the deck again?</p>
+            <button type="button" class="btn btn-danger" id="confirmYes">Clear votes</button>
+            <button type="button" class="btn btn-ghost" id="confirmNo">Cancel</button>
+          </div>
+        </div>
+
+        <div class="res-lists">
+          <section class="list-block yes" aria-labelledby="yesHead">
+            <h3 id="yesHead"><span class="dot" aria-hidden="true"></span>Stocked <span id="yesCount">0</span></h3>
+            <ul class="pick-list" id="listYes"></ul>
+          </section>
+          <section class="list-block no" aria-labelledby="noHead">
+            <h3 id="noHead"><span class="dot" aria-hidden="true"></span>Passed <span id="noCount">0</span></h3>
+            <ul class="pick-list" id="listNo"></ul>
+          </section>
+        </div>
+      </div>
+
+      <section class="group" id="groupBlock" aria-labelledby="groupHead" hidden>
+        <div class="group-head">
+          <h2 id="groupHead">Everyone's picks</h2>
+          <p class="group-meta" id="groupMeta">Connecting&hellip;</p>
+        </div>
+        <p class="group-note" id="groupNote" hidden></p>
+        <ol class="rank" id="rankList"></ol>
+        <p class="empty" id="groupEmpty" hidden>No votes yet. Swipe through the deck and yours will be the first.</p>
+      </section>
+    </section>
+  </main>
+
+  <p class="sr-only" aria-live="polite" id="announce"></p>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Deck order mixes drinks, salty and sweet so no category comes in a long run.
+  const SNACKS = [
+    { id: "takis-fuego", name: "Takis Fuego", desc: "Hot chili pepper and lime rolled tortilla chips", kind: "Chips", size: "2 oz bag", pack: "bag", tint: "#ECE3FA" },
+    { id: "coca-cola", name: "Coca-Cola", desc: "Original taste cola", kind: "Soda", size: "20 fl oz bottle", pack: "bottle", tint: "#FBE3E2" },
+    { id: "snickers", name: "Snickers", desc: "Milk chocolate, peanuts, caramel and nougat", kind: "Candy bar", size: "1.86 oz bar", pack: "bar", tint: "#F1E6DC" },
+    { id: "cheez-it-original", name: "Cheez-It Original", desc: "Baked snack crackers made with real cheese", kind: "Crackers", size: "1.5 oz bag", pack: "bag", tint: "#FDE7DA" },
+    { id: "gatorade-orange", name: "Gatorade Orange", desc: "Thirst Quencher sports drink", kind: "Sports drink", size: "20 fl oz bottle", pack: "bottle", tint: "#FFEAD3" },
+    { id: "skittles-original", name: "Skittles Original", desc: "Bite-size fruit candies", kind: "Candy", size: "2.17 oz pack", pack: "pack", tint: "#FCE2E5" },
+    { id: "doritos-nacho-cheese", name: "Doritos Nacho Cheese", desc: "Nacho cheese tortilla chips", kind: "Chips", size: "1.75 oz bag", pack: "bag", tint: "#FDE3DC" },
+    { id: "dr-pepper", name: "Dr Pepper", desc: "The blend of 23 flavors", kind: "Soda", size: "20 fl oz bottle", pack: "bottle", tint: "#F3DFE2" },
+    { id: "famous-amos", name: "Famous Amos", desc: "Bite-size chocolate chip cookies", kind: "Cookies", size: "2 oz bag", pack: "bag", tint: "#F7EDD8" },
+    { id: "arizona-iced-tea", name: "AriZona Iced Tea", desc: "Iced tea with lemon flavor", kind: "Iced tea", size: "20 fl oz bottle", pack: "bottle", tint: "#DFF2EC" },
+    { id: "cheetos-flamin-hot", name: "Cheetos Flamin' Hot", desc: "Crunchy cheese snacks with Flamin' Hot heat", kind: "Chips", size: "2 oz bag", pack: "bag", tint: "#FFE4D6" },
+    { id: "mms-peanut", name: "Peanut M&M's", desc: "Milk chocolate candies with a peanut center", kind: "Candy", size: "1.74 oz pack", pack: "pack", tint: "#FFF1C9" },
+    { id: "sprite", name: "Sprite", desc: "Lemon-lime soda", kind: "Soda", size: "20 fl oz bottle", pack: "bottle", tint: "#DFF2E3" },
+    { id: "chips-ahoy", name: "Chips Ahoy! Original", desc: "Real chocolate chip cookies", kind: "Cookies", size: "1.55 oz pack", pack: "pack", tint: "#DDEAFA" },
+    { id: "jarritos-mandarin", name: "Jarritos Mandarin", desc: "Mandarin soda in a glass bottle", kind: "Soda", size: "16.9 fl oz bottle", pack: "bottle", tint: "#FFE8D1" },
+    { id: "diet-coke", name: "Diet Coke", desc: "Zero-calorie cola", kind: "Soda", size: "20 fl oz bottle", pack: "bottle", tint: "#ECEFF2" },
+  ];
+  const BY_ID = Object.fromEntries(SNACKS.map((s) => [s.id, s]));
+  const TOTAL = SNACKS.length;
+  const COLS = 4;
+  const STORE_KEY = "snack-swipe:v1";
+
+  const $ = (id) => document.getElementById(id);
+  const deck = $("deck");
+  const deckDone = $("deckDone");
+  const btnYes = $("btnYes");
+  const btnNo = $("btnNo");
+  const btnUndo = $("btnUndo");
+  const vmLive = $("vmLive");
+  const vmResults = $("vmResults");
+
+  const imgSrc = (s) => `images/${s.id}.webp`;
+  const slotCode = (i) => String.fromCharCode(65 + Math.floor(i / COLS)) + ((i % COLS) + 1);
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const el = (tag, cls, text) => {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  };
+
+  // ---------- State ----------
+  // votes: ordered list of {id, choice}; order drives undo and slot assignment.
+  let votes = [];
+  let updatedAt = 0;
+  let ledText = "READY";
+
+  function cleanVotes(list) {
+    if (!Array.isArray(list)) return [];
+    const seen = new Set();
+    const out = [];
+    for (const v of list) {
+      if (!v || typeof v !== "object") continue;
+      if (!BY_ID[v.id] || seen.has(v.id)) continue;
+      if (v.choice !== "yes" && v.choice !== "no") continue;
+      seen.add(v.id);
+      out.push({ id: v.id, choice: v.choice });
+    }
+    return out;
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      votes = cleanVotes(saved.votes);
+      updatedAt = Number(saved.updatedAt) || 0;
+    } catch (e) { /* storage unavailable: start fresh */ }
+  }
+  function saveLocal() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ votes, updatedAt })); } catch (e) { /* ignore */ }
+  }
+  const votedIds = () => new Set(votes.map((v) => v.id));
+  const remaining = () => { const done = votedIds(); return SNACKS.filter((s) => !done.has(s.id)); };
+  const stockedIds = () => votes.filter((v) => v.choice === "yes").map((v) => v.id);
+  const passedIds = () => votes.filter((v) => v.choice === "no").map((v) => v.id);
+
+  function touch() {
+    updatedAt = Date.now();
+    saveLocal();
+    scheduleSync();
+  }
+  function announce(msg) { $("announce").textContent = msg; }
+
+  function castVote(id, choice) {
+    if (votedIds().has(id)) return;
+    votes.push({ id, choice });
+    touch();
+    const s = BY_ID[id];
+    if (choice === "yes") {
+      const idx = stockedIds().length - 1;
+      ledText = `${slotCode(idx)} ${s.name.toUpperCase()}`;
+      announce(`Stocked ${s.name} in slot ${slotCode(idx)}.`);
+      renderAll({ dropId: id });
+    } else {
+      ledText = `PASS ${s.name.toUpperCase()}`;
+      announce(`Passed on ${s.name}.`);
+      renderAll();
+    }
+  }
+
+  function undo() {
+    const last = votes.pop();
+    if (!last) return;
+    touch();
+    ledText = "UNDO";
+    announce(`Undid ${BY_ID[last.id].name}.`);
+    renderAll({ returning: last });
+  }
+
+  function flip(id) {
+    const v = votes.find((x) => x.id === id);
+    if (!v) return;
+    // Moving a snack into the machine puts it in the next free slot.
+    votes = votes.filter((x) => x.id !== id);
+    v.choice = v.choice === "yes" ? "no" : "yes";
+    votes.push(v);
+    touch();
+    announce(v.choice === "yes" ? `Stocked ${BY_ID[id].name}.` : `Moved ${BY_ID[id].name} to passed.`);
+    renderAll({ dropId: v.choice === "yes" ? id : null });
+  }
+
+  function resetAll() {
+    votes = [];
+    ledText = "READY";
+    touch();
+    announce("Votes cleared.");
+    renderAll();
+  }
+
+  // ---------- Deck ----------
+  const cardEls = new Map();
+
+  function buildCard(s) {
+    const card = el("article", "card");
+    card.dataset.id = s.id;
+    card.style.setProperty("--tint", s.tint);
+    card.setAttribute("aria-label", `${s.name}, ${s.kind}, ${s.size}`);
+
+    const photo = el("div", "card-photo");
+    const img = el("img");
+    img.src = imgSrc(s);
+    img.alt = `${s.name} ${s.pack}`;
+    img.draggable = false;
+    img.decoding = "async";
+    photo.append(img, el("span", "stamp stamp-yes", "Stock it"), el("span", "stamp stamp-no", "Pass"));
+
+    const body = el("div", "card-body");
+    const chips = el("div", "card-chips");
+    chips.append(el("span", "chip", s.kind), el("span", "chip", s.size));
+    body.append(chips, el("h2", "card-name", s.name), el("p", "card-desc", s.desc));
+
+    card.append(photo, body);
+    return card;
+  }
+
+  function renderDeck(opts = {}) {
+    const rem = remaining();
+    const visible = rem.slice(0, 3);
+    const keep = new Set(visible.map((s) => s.id));
+    for (const [id, node] of cardEls) {
+      if (!keep.has(id)) { node.remove(); cardEls.delete(id); }
+    }
+    // Append back-to-front so the top card is last in DOM order.
+    for (let depth = visible.length - 1; depth >= 0; depth--) {
+      const s = visible[depth];
+      let card = cardEls.get(s.id);
+      if (!card) { card = buildCard(s); cardEls.set(s.id, card); }
+      card.dataset.depth = String(depth);
+      card.style.zIndex = String(10 - depth);
+      card.style.transform = "";
+      card.style.transition = "";
+      card.style.opacity = "";
+      card.querySelectorAll(".stamp").forEach((st) => (st.style.opacity = ""));
+      card.setAttribute("aria-hidden", depth === 0 ? "false" : "true");
+      deck.appendChild(card);
+    }
+
+    if (opts.returning && cardEls.has(opts.returning.id)) {
+      const card = cardEls.get(opts.returning.id);
+      const dir = opts.returning.choice === "yes" ? 1 : -1;
+      card.style.transition = "none";
+      card.style.transform = `translate(${dir * (deck.clientWidth + 80)}px, 30px) rotate(${dir * 24}deg)`;
+      card.getBoundingClientRect();
+      card.style.transition = "";
+      card.style.transform = "";
+    }
+
+    const finished = rem.length === 0;
+    deckDone.hidden = !finished;
+    if (finished) {
+      const y = stockedIds().length;
+      const n = passedIds().length;
+      $("doneSub").textContent = `You stocked ${plural(y, "snack", "snacks")} and passed on ${n}.`;
+    }
+    btnYes.disabled = finished;
+    btnNo.disabled = finished;
+    btnUndo.disabled = votes.length === 0;
+  }
+
+  function fling(card, dir) {
+    cardEls.delete(card.dataset.id);
+    card.classList.add("is-flying");
+    card.classList.remove("is-dragging");
+    const stamp = card.querySelector(dir > 0 ? ".stamp-yes" : ".stamp-no");
+    if (stamp) stamp.style.opacity = "1";
+    let dy = 0;
+    try { dy = new DOMMatrixReadOnly(getComputedStyle(card).transform).m42 || 0; } catch (e) { /* keep 0 */ }
+    card.style.transition = "transform 0.45s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 0.45s ease";
+    card.style.transform = `translate(${dir * (window.innerWidth * 0.6 + card.offsetWidth)}px, ${dy + 40}px) rotate(${dir * 28}deg)`;
+    card.style.opacity = "0";
+    setTimeout(() => card.remove(), 480);
+  }
+
+  function decideTop(choice) {
+    const top = remaining()[0];
+    if (!top) return;
+    const card = cardEls.get(top.id);
+    if (card) fling(card, choice === "yes" ? 1 : -1);
+    castVote(top.id, choice);
+  }
+
+  // Pointer dragging on the top card.
+  let drag = null;
+  const threshold = () => Math.min(120, deck.clientWidth * 0.28);
+
+  function nextCard() {
+    const rem = remaining();
+    return rem[1] ? cardEls.get(rem[1].id) : null;
+  }
+  function paintDrag(dx, dy) {
+    const card = drag.card;
+    card.style.transform = `translate(${dx}px, ${dy * 0.35}px) rotate(${dx / 16}deg)`;
+    const yes = card.querySelector(".stamp-yes");
+    const no = card.querySelector(".stamp-no");
+    yes.style.opacity = String(Math.max(0, Math.min(1, (dx - 20) / 90)));
+    no.style.opacity = String(Math.max(0, Math.min(1, (-dx - 20) / 90)));
+    const p = Math.min(1, Math.abs(dx) / threshold());
+    const next = nextCard();
+    if (next) {
+      next.style.transition = "none";
+      next.style.transform = `translateY(${11 - 11 * p}px) scale(${0.955 + 0.045 * p})`;
+    }
+    btnYes.classList.toggle("is-hot", dx > threshold());
+    btnNo.classList.toggle("is-hot", dx < -threshold());
+  }
+  function clearHot() {
+    btnYes.classList.remove("is-hot");
+    btnNo.classList.remove("is-hot");
+  }
+  function snapBack(card) {
+    card.classList.remove("is-dragging");
+    card.style.transition = "transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1)";
+    card.style.transform = "";
+    card.querySelectorAll(".stamp").forEach((st) => (st.style.opacity = ""));
+    const next = nextCard();
+    if (next) { next.style.transition = ""; next.style.transform = ""; }
+    clearHot();
+  }
+
+  deck.addEventListener("pointerdown", (e) => {
+    const card = e.target.closest(".card");
+    if (!card || card.dataset.depth !== "0" || card.classList.contains("is-flying")) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    const now = performance.now();
+    drag = { card, id: card.dataset.id, pid: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0, lastX: e.clientX, lastT: now, vx: 0 };
+    card.setPointerCapture(e.pointerId);
+    card.classList.add("is-dragging");
+  });
+  deck.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    drag.dx = e.clientX - drag.x0;
+    drag.dy = e.clientY - drag.y0;
+    const now = performance.now();
+    const dt = now - drag.lastT;
+    if (dt > 0) drag.vx = 0.7 * ((e.clientX - drag.lastX) / dt) + 0.3 * drag.vx;
+    drag.lastX = e.clientX;
+    drag.lastT = now;
+    paintDrag(drag.dx, drag.dy);
+  });
+  deck.addEventListener("pointerup", (e) => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    const { card, id, dx, vx } = drag;
+    drag = null;
+    clearHot();
+    const t = threshold();
+    const choice = dx > t || (vx > 0.55 && dx > 30) ? "yes"
+      : dx < -t || (vx < -0.55 && dx < -30) ? "no" : null;
+    if (!choice) { snapBack(card); return; }
+    fling(card, choice === "yes" ? 1 : -1);
+    castVote(id, choice);
+  });
+  deck.addEventListener("pointercancel", (e) => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    const { card } = drag;
+    drag = null;
+    snapBack(card);
+  });
+
+  btnYes.addEventListener("click", () => decideTop("yes"));
+  btnNo.addEventListener("click", () => decideTop("no"));
+  btnUndo.addEventListener("click", undo);
+
+  document.addEventListener("keydown", (e) => {
+    if ($("view-swipe").hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest && e.target.closest("input, textarea, [contenteditable]")) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); decideTop("yes"); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); decideTop("no"); }
+    else if (e.key === "Backspace" || e.key === "z" || e.key === "u") { e.preventDefault(); undo(); }
+  });
+
+  // ---------- Vending machine ----------
+  function renderMachine(container, opts = {}) {
+    const ids = stockedIds();
+    container.replaceChildren();
+
+    const top = el("div", "vm-top");
+    top.append(el("span", "vm-label", "SNACKS"), el("div", "vm-led", opts.led || ledText));
+
+    const glass = el("div", "vm-glass");
+    const grid = el("div", "vm-grid");
+    for (let i = 0; i < TOTAL; i++) {
+      const slot = el("div", "slot");
+      const bay = el("div", "slot-bay");
+      const s = BY_ID[ids[i]];
+      if (s) {
+        slot.classList.add("is-filled");
+        if (opts.dropId === s.id) slot.classList.add("is-drop");
+        const img = el("img");
+        img.src = imgSrc(s);
+        img.alt = `${s.name} in slot ${slotCode(i)}`;
+        img.draggable = false;
+        bay.append(img);
+      }
+      slot.append(bay, el("div", "slot-coil"), el("span", "slot-code", slotCode(i)));
+      grid.append(slot);
+    }
+    glass.append(grid);
+
+    const base = el("div", "vm-base");
+    base.append(el("div", "vm-tray", "PUSH"), el("div", "vm-coin"));
+    container.append(top, glass, base);
+  }
+
+  // ---------- Results ----------
+  function pickRow(s, meta, flipLabel) {
+    const li = el("li", "pick-row");
+    const thumb = el("span", "thumb");
+    thumb.style.setProperty("--tint", s.tint);
+    const img = el("img");
+    img.src = imgSrc(s);
+    img.alt = "";
+    thumb.append(img);
+    const text = el("div");
+    text.append(el("span", "pick-name", s.name));
+    const m = el("span", "pick-meta");
+    if (meta.code) { m.append(el("span", "code", meta.code), document.createTextNode(` · ${s.kind}`)); }
+    else m.textContent = `${s.kind} · ${s.size}`;
+    text.append(m);
+    const b = el("button", "flip", flipLabel);
+    b.type = "button";
+    b.addEventListener("click", () => flip(s.id));
+    li.append(thumb, text, b);
+    return li;
+  }
+
+  function renderResults(opts = {}) {
+    const yes = stockedIds();
+    const no = passedIds();
+    const left = remaining().length;
+    $("resSummary").textContent = `${yes.length} stocked · ${no.length} passed · ${left} still to swipe`;
+    $("yesCount").textContent = yes.length;
+    $("noCount").textContent = no.length;
+
+    const listYes = $("listYes");
+    listYes.replaceChildren();
+    yes.forEach((id, i) => listYes.append(pickRow(BY_ID[id], { code: slotCode(i) }, "Pass instead")));
+    if (!yes.length) listYes.append(el("li", "empty", "Nothing stocked yet. Swipe right on a snack to put it in the machine."));
+
+    const listNo = $("listNo");
+    listNo.replaceChildren();
+    no.forEach((id) => listNo.append(pickRow(BY_ID[id], {}, "Stock it")));
+    if (!no.length) listNo.append(el("li", "empty", "You haven't passed on anything."));
+
+    const keep = $("keepSwiping");
+    keep.hidden = left === 0;
+    keep.textContent = left === TOTAL ? "Start swiping" : `Keep swiping (${left} left)`;
+    $("startOver").hidden = votes.length === 0;
+    if (votes.length === 0) $("confirmReset").hidden = true;
+
+    const led = yes.length === 0 ? "EMPTY" : yes.length === TOTAL ? "SOLD IN" : `${pad2(yes.length)} STOCKED`;
+    renderMachine(vmResults, { led, dropId: opts.dropId });
+  }
+
+  function renderProgress() {
+    const done = votes.length;
+    const current = Math.min(done + 1, TOTAL);
+    $("progressLed").textContent = `${pad2(current)}/${TOTAL}`;
+    $("progressFill").style.width = `${(done / TOTAL) * 100}%`;
+    const left = TOTAL - done;
+    $("progressLabel").textContent = left ? `${left} to go` : "All done";
+    $("tabCount").textContent = stockedIds().length;
+  }
+
+  function renderAll(opts = {}) {
+    renderProgress();
+    renderDeck(opts);
+    renderMachine(vmLive, { dropId: opts.dropId });
+    renderResults({ dropId: $("view-results").hidden ? null : opts.dropId });
+    renderGroup();
+  }
+
+  // ---------- Tabs ----------
+  function showView(name) {
+    const swipe = name === "swipe";
+    $("view-swipe").hidden = !swipe;
+    $("view-results").hidden = swipe;
+    const ts = $("tab-swipe");
+    const tr = $("tab-results");
+    ts.setAttribute("aria-selected", String(swipe));
+    tr.setAttribute("aria-selected", String(!swipe));
+    ts.tabIndex = swipe ? 0 : -1;
+    tr.tabIndex = swipe ? -1 : 0;
+    if (!swipe) renderResults();
+  }
+  $("tab-swipe").addEventListener("click", () => showView("swipe"));
+  $("tab-results").addEventListener("click", () => showView("results"));
+  document.querySelector(".tabs").addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.stopPropagation();
+    const toResults = $("tab-swipe").getAttribute("aria-selected") === "true";
+    showView(toResults ? "results" : "swipe");
+    $(toResults ? "tab-results" : "tab-swipe").focus();
+  });
+  $("seeResults").addEventListener("click", () => showView("results"));
+  $("keepSwiping").addEventListener("click", () => showView("swipe"));
+  $("startOver").addEventListener("click", () => {
+    $("confirmText").textContent = `Clear all ${plural(votes.length, "vote", "votes")} and start the deck again?`;
+    $("confirmReset").hidden = false;
+    $("confirmYes").focus();
+  });
+  $("confirmNo").addEventListener("click", () => { $("confirmReset").hidden = true; $("startOver").focus(); });
+  $("confirmYes").addEventListener("click", () => {
+    $("confirmReset").hidden = true;
+    resetAll();
+    showView("swipe");
+  });
+
+  // ---------- Shared tally (only when the page runs as a Claude artifact with storage) ----------
+  const cloud = { db: null, ref: null, canWrite: false, ballots: null, failed: false };
+  let syncTimer = null;
+  let syncing = false;
+  let syncAgain = false;
+  let retried = false;
+
+  function scheduleSync() {
+    if (!cloud.ref || !cloud.canWrite) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(flushSync, 600);
+  }
+  async function flushSync() {
+    clearTimeout(syncTimer);
+    syncTimer = null;
+    if (!cloud.ref || !cloud.canWrite) return;
+    if (syncing) { syncAgain = true; return; }
+    syncing = true;
+    try {
+      do {
+        syncAgain = false;
+        await cloud.ref.set({ votes: votes.map((v) => ({ id: v.id, choice: v.choice })), updatedAt });
+      } while (syncAgain);
+      retried = false;
+    } catch (err) {
+      const code = err && err.code;
+      if (code === "unavailable" && !retried) {
+        retried = true;
+        setTimeout(flushSync, 1200 + Math.random() * 1200);
+      } else if (code === "invalid_argument" || code === "not_granted" || code === "revoked") {
+        cloud.canWrite = false;
+        renderGroup();
+      }
+    } finally {
+      syncing = false;
+    }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && syncTimer) flushSync();
+  });
+
+  function renderGroup() {
+    const block = $("groupBlock");
+    if (!cloud.db) { block.hidden = true; return; }
+    block.hidden = false;
+
+    const note = $("groupNote");
+    if (cloud.failed) {
+      note.hidden = false;
+      note.textContent = "Group results stopped updating. Reload the page to reconnect.";
+    } else if (!cloud.canWrite && cloud.ballots) {
+      note.hidden = false;
+      note.textContent = "Your votes are saved on this device only. To add them to the group tally, ask the owner for Contributor access.";
+    } else {
+      note.hidden = true;
+    }
+
+    const list = $("rankList");
+    if (!cloud.ballots) {
+      $("groupMeta").textContent = "Connecting…";
+      list.replaceChildren();
+      $("groupEmpty").hidden = true;
+      return;
+    }
+
+    // Count everyone's saved ballots; swap in this viewer's live votes so their swipes show at once.
+    const ballots = cloud.ballots.filter((b) => !(cloud.canWrite && b.id === cloud.uid)).map((b) => b.votes);
+    if (cloud.canWrite) ballots.push(votes);
+    const voters = ballots.filter((b) => b.length > 0);
+    $("groupMeta").textContent = voters.length
+      ? `${plural(voters.length, "person has", "people have")} voted`
+      : "No votes yet";
+
+    const tally = SNACKS.map((s, order) => {
+      let y = 0, n = 0;
+      for (const b of voters) {
+        const v = b.find((x) => x.id === s.id);
+        if (v) v.choice === "yes" ? y++ : n++;
+      }
+      const total = y + n;
+      return { s, order, y, total, pct: total ? Math.round((y / total) * 100) : -1 };
+    });
+    tally.sort((a, b) => b.pct - a.pct || b.y - a.y || a.order - b.order);
+
+    const mine = Object.fromEntries(votes.map((v) => [v.id, v.choice]));
+    list.replaceChildren();
+    $("groupEmpty").hidden = voters.length > 0;
+    if (!voters.length) return;
+
+    tally.forEach((t, i) => {
+      const li = el("li", "rank-row");
+      if (t.total && t.pct < 50) li.classList.add("is-low");
+      const thumb = el("span", "thumb");
+      thumb.style.setProperty("--tint", t.s.tint);
+      const img = el("img");
+      img.src = imgSrc(t.s);
+      img.alt = "";
+      thumb.append(img);
+
+      const main = el("div", "rank-main");
+      const topRow = el("div", "rank-top");
+      topRow.append(el("b", null, t.s.name), el("span", "rank-pct", t.total ? `${t.pct}%` : "–"));
+      const bar = el("div", "bar");
+      const fill = el("i");
+      fill.style.width = `${Math.max(t.pct, 0)}%`;
+      bar.append(fill);
+      const you = mine[t.s.id] === "yes" ? " · you stocked it" : mine[t.s.id] === "no" ? " · you passed" : "";
+      const meta = t.total ? `${t.y} of ${t.total} want it${you}` : "No votes yet";
+      main.append(topRow, bar, el("span", "rank-meta", meta));
+
+      li.append(el("span", "rank-n", String(i + 1)), thumb, main);
+      list.append(li);
+    });
+  }
+
+  async function connectCloud() {
+    const c = window.claude;
+    if (!c || typeof c.use !== "function") return;
+    let db = null;
+    let user = null;
+    try {
+      [db, user] = await Promise.all([c.use("db"), c.use("user")]);
+    } catch (e) { return; }
+    if (!db) return;
+    cloud.db = db;
+    renderGroup();
+
+    try {
+      db.collection("votes").limit(1000).onSnapshot((snap) => {
+        cloud.ballots = snap.docs
+          .filter((d) => d.exists)
+          .map((d) => ({ id: d.id, votes: cleanVotes((d.data() || {}).votes) }));
+        renderGroup();
+      }, () => {
+        cloud.failed = true;
+        renderGroup();
+      });
+    } catch (e) {
+      cloud.failed = true;
+      renderGroup();
+    }
+
+    const uid = user ? await user.id() : null;
+    if (!uid) { renderGroup(); return; }
+    const allowed = await user.can("data.write");
+    if (allowed === false) { renderGroup(); return; }
+    try { cloud.ref = db.doc(`votes/${uid}`); } catch (e) { return; }
+    cloud.uid = uid;
+
+    // Keep whichever copy of this viewer's ballot is newer: this device's or the saved one.
+    try {
+      const snap = await cloud.ref.get();
+      const saved = snap.exists ? snap.data() || {} : null;
+      const savedAt = saved ? Number(saved.updatedAt) || 0 : 0;
+      cloud.canWrite = true;
+      if (saved && savedAt > updatedAt) {
+        votes = cleanVotes(saved.votes);
+        updatedAt = savedAt;
+        saveLocal();
+        ledText = "READY";
+        renderAll();
+      } else if (!saved || savedAt < updatedAt) {
+        renderGroup();
+        if (votes.length || saved) flushSync();
+      } else {
+        renderGroup();
+      }
+    } catch (e) {
+      renderGroup();
+    }
+  }
+
+  // ---------- Boot ----------
+  loadLocal();
+  renderAll();
+  connectCloud();
+})();
+</script>
+</body>
+</html>
